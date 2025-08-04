@@ -1,4 +1,5 @@
 import app/router
+import dot_env/env
 import gleam/erlang/process
 import mist
 import wisp
@@ -11,7 +12,7 @@ pub fn start() {
   let assert Ok(_) =
     wisp_mist.handler(router.handle_request, secret_key_base)
     |> mist.new
-    |> mist.port(8080)
+    |> mist.port(env.get_int_or("PORT", 8081))
     |> mist.start
 
   process.sleep_forever()
