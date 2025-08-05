@@ -21,7 +21,8 @@ fn up(connection: Connection) -> Result(Nil, String) {
     "CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT NOT NULL UNIQUE,
-    hash TEXT NOT NULL
+    hash TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )"
 
   query
