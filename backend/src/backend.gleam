@@ -1,7 +1,12 @@
 import app/server
-import dot_env as dot
+import dot_env
+import gleam/io
+import gleam/result
 
 pub fn main() -> Nil {
-  dot.load_default()
+  dot_env.load_default()
+
   server.start()
+  |> result.map_error(io.println_error)
+  |> result.unwrap(Nil)
 }
