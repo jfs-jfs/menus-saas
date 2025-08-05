@@ -1,7 +1,7 @@
 import adapters/sqlite/migrations/m0001
 import adapters/sqlite/migrator.{type Migration}
 
-fn active_migrations() -> List(Migration) {
+pub fn active_migrations() -> List(Migration) {
   [m0001.build()]
 }
 
