@@ -3,3 +3,5 @@
 /build
 erl_crash.dump
 database.db
+test-database.db
+test-snapshot
