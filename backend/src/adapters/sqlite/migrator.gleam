@@ -3,7 +3,9 @@ import gleam/dynamic/decode
 import gleam/int
 import gleam/list
 import gleam/result
+import shared/extra_result
 import sqlight.{type Connection}
+import wisp
 
 pub type Migration {
   Migration(
@@ -42,6 +44,8 @@ pub fn apply_migrations(migrations: List(Migration)) -> Result(Nil, String) {
   use connection <- result.try(database.open())
   use applied_migrations <- result.try(applied_migrations_ids(connection))
 
+  wisp.log_info("Starting to apply migrations")
+
   let res =
     migrations
     |> list.fold_until(Ok(Nil), fn(_, migration) {
@@ -52,7 +56,14 @@ pub fn apply_migrations(migrations: List(Migration)) -> Result(Nil, String) {
     })
 
   use _ <- result.try(database.close(connection))
+
   res
+  |> extra_result.inspect(fn(_) {
+    wisp.log_info("Migration ended successfully")
+  })
+  |> extra_result.inspect_error(fn(error) {
+    wisp.log_critical("Unable to finish migration due to: " <> error)
+  })
 }
 
 pub fn remove_migrations(
@@ -94,10 +105,19 @@ fn execute_migration(
 ) -> Result(Nil, String) {
   applied_migrations
   |> list.find(fn(id) { migration.id == id })
-  |> result.map(fn(_) { Nil })
+  |> result.map(fn(_) {
+    wisp.log_info(
+      "Skipping Migration id: "
+      <> migration.id |> int.to_string()
+      <> " already migrated",
+    )
+  })
   |> result.try_recover(fn(_) {
     use _ <- result.try(migration.up(connection))
     mark_migrated(migration, connection)
+  })
+  |> result.map_error(fn(err) {
+    "migration id: " <> migration.id |> int.to_string() <> " :: " <> err
   })
 }
 
@@ -113,6 +133,11 @@ fn mark_migrated(
   )
   |> result.map(fn(_) { Nil })
   |> result.map_error(fn(err) { err.message })
+  |> extra_result.inspect(fn(_) {
+    wisp.log_info(
+      "Migrated successfully Migration id: " <> migration.id |> int.to_string(),
+    )
+  })
 }
 
 fn remove_migrated_mark(
