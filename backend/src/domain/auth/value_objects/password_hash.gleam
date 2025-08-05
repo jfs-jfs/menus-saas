@@ -1,7 +1,7 @@
 import shared/validate
 
 pub type PasswordHash {
-  PasswordHash(hash: String)
+  PasswordHash(value: String)
 }
 
 pub fn create(maybe_hash: String) -> Result(PasswordHash, String) {
