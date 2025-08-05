@@ -13,3 +13,7 @@ pub fn close(connection: sqlight.Connection) -> Result(Nil, String) {
   sqlight.close(connection)
   |> result.map_error(fn(error) { error.message })
 }
+
+pub fn map_error(res: Result(a, sqlight.Error)) -> Result(a, String) {
+  res |> result.map_error(fn(err) { err.message })
+}
