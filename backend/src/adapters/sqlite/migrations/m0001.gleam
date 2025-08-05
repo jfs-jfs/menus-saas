@@ -20,7 +20,7 @@ fn up(connection: Connection) -> Result(Nil, String) {
   let query =
     "CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
     hash TEXT NOT NULL
   )"
 
