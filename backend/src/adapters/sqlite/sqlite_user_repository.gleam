@@ -1,6 +1,6 @@
 import adapters/sqlite/database
 import domain/auth/user.{type User}
-import domain/auth/value_objects/email
+import domain/auth/value_objects/email.{InvalidFormat}
 import domain/auth/value_objects/password_hash
 import gleam/dynamic/decode
 import gleam/list
@@ -101,16 +101,15 @@ fn user_decoder() -> decode.Decoder(user.User) {
   use hash_str <- decode.field(2, decode.string)
 
   let decoder_email = case email.create(email_str) {
-    Error(error) ->
-      decode.failure(email.Email(""), "Invalid value in database: " <> error)
+    Error(InvalidFormat(error)) -> decode.failure(email.Email(""), error)
     Ok(value) -> decode.success(value)
   }
 
   let decoder_hash = case password_hash.create(hash_str) {
-    Error(error) ->
+    Error(_) ->
       decode.failure(
         password_hash.PasswordHash(""),
-        "Invalid value in database: " <> error,
+        "Invalid hash in database from user -> " <> email_str,
       )
     Ok(value) -> decode.success(value)
   }

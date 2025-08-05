@@ -1,4 +1,4 @@
-import adapters/hasher/sha256_haser
+import adapters/hasher/sha256_hasher
 import adapters/http/auth/user_creation_handler
 import adapters/http/middleware/logger_middleware
 import adapters/http/status_handler
@@ -15,7 +15,7 @@ pub fn handle_request(request: wisp.Request) -> wisp.Response {
       user_creation_handler.handle(
         request,
         create_user.build(),
-        sha256_haser.build(),
+        sha256_hasher.build(),
         sqlite_user_repository.build(),
       )
 

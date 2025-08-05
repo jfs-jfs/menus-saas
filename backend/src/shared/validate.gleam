@@ -1,8 +1,10 @@
 import gleam/regexp
+import gleam/string
 
 pub const email_pattern = "^[\\w\\-\\.]+@([\\w-]+\\.)+[\\w-]{2,}$"
 
-pub const sha256_pattern = "^[a-fA-F0-9]{64}$"
+// Minimum eight characters, at least one upper case English letter, one lower case English letter, one number and one special character 
+pub const password_pattern = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$"
 
 fn regex_check(pattern: String, to_check: String) -> Bool {
   let assert Ok(compiled_regex) = regexp.from_string(pattern)
@@ -15,6 +17,10 @@ pub fn is_email(something: String) -> Bool {
 }
 
 pub fn is_sha256_hash(something: String) -> Bool {
-  sha256_pattern
+  string.length(something) == 64
+}
+
+pub fn is_password(something: String) -> Bool {
+  password_pattern
   |> regex_check(something)
 }

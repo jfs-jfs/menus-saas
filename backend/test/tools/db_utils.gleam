@@ -1,4 +1,4 @@
-import adapters/hasher/sha256_haser
+import adapters/hasher/sha256_hasher
 
 /// Get a valid user account, unregistered on the database
 ///
@@ -27,7 +27,7 @@ pub fn registered_user() -> #(String, String) {
 /// Get a valid, registered hash for the account of registered_user()
 ///
 pub fn registered_user_hash() -> String {
-  sha256_haser.build().hash(registered_user().1)
+  sha256_hasher.build().hash(registered_user().1)
 }
 
 /// Get a valid, registered email
