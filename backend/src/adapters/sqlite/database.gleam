@@ -2,14 +2,7 @@ import dot_env/env
 import gleam/result
 import sqlight
 
-pub fn open() -> Result(sqlight.Connection, String) {
-  use database_uri <- result.try(env.get_string("DATABASE_URI"))
-
-  sqlight.open(database_uri)
-  |> result.map_error(fn(error) { error.message })
-}
-
-pub fn open_ok() -> Result(sqlight.Connection, sqlight.Error) {
+pub fn open() -> Result(sqlight.Connection, sqlight.Error) {
   // use database_uri <- result.try(env.get_string("DATABASE_URI"))
 
   let maybe_uri =
@@ -26,13 +19,8 @@ pub fn open_ok() -> Result(sqlight.Connection, sqlight.Error) {
   sqlight.open(uri)
 }
 
-pub fn close_ok(connection: sqlight.Connection) -> Result(Nil, sqlight.Error) {
+pub fn close(connection: sqlight.Connection) -> Result(Nil, sqlight.Error) {
   sqlight.close(connection)
-}
-
-pub fn close(connection: sqlight.Connection) -> Result(Nil, String) {
-  sqlight.close(connection)
-  |> result.map_error(fn(error) { error.message })
 }
 
 pub fn map_error(res: Result(a, sqlight.Error)) -> Result(a, String) {

@@ -24,7 +24,7 @@ fn save(user: User) -> Result(User, UserRepositoryError) {
 }
 
 fn create(user: User) -> Result(User, UserRepositoryError) {
-  use connection <- result.try(database.open_ok() |> translate_error())
+  use connection <- result.try(database.open() |> translate_error())
 
   let res =
     sqlight.query(
@@ -36,14 +36,14 @@ fn create(user: User) -> Result(User, UserRepositoryError) {
     |> translate_error()
     |> result.map(fn(_) { Nil })
 
-  use _ <- result.try(database.close_ok(connection) |> translate_error())
+  use _ <- result.try(database.close(connection) |> translate_error())
   use _ <- result.try(res)
 
   search_by_email(user.email)
 }
 
 fn update(user: User) -> Result(User, UserRepositoryError) {
-  use connection <- result.try(database.open_ok() |> translate_error())
+  use connection <- result.try(database.open() |> translate_error())
 
   let res =
     sqlight.query(
@@ -55,12 +55,12 @@ fn update(user: User) -> Result(User, UserRepositoryError) {
     |> translate_error()
     |> result.map(fn(_) { user })
 
-  use _ <- result.try(database.close_ok(connection) |> translate_error())
+  use _ <- result.try(database.close(connection) |> translate_error())
   res
 }
 
 fn search_by_email(email: email.Email) -> Result(user.User, UserRepositoryError) {
-  use connection <- result.try(database.open_ok() |> translate_error())
+  use connection <- result.try(database.open() |> translate_error())
 
   let user_decoder = user_decoder()
 
@@ -72,7 +72,7 @@ fn search_by_email(email: email.Email) -> Result(user.User, UserRepositoryError)
       user_decoder,
     )
 
-  use _ <- result.try(database.close_ok(connection) |> translate_error())
+  use _ <- result.try(database.close(connection) |> translate_error())
 
   res
   |> translate_error()
