@@ -1,4 +1,8 @@
+import gleam/bool
+import gleam/int
+import gleam/order
 import gleam/regexp
+import gleam/result
 import gleam/string
 
 pub const email_pattern = "^[\\w\\-\\.]+@([\\w-]+\\.)+[\\w-]{2,}$"
@@ -23,4 +27,23 @@ pub fn is_sha256_hash(something: String) -> Bool {
 pub fn is_password(something: String) -> Bool {
   password_pattern
   |> regex_check(something)
+}
+
+pub fn is_positive(n: Int) -> Bool {
+  case n |> int.compare(0) {
+    order.Gt -> True
+    _ -> False
+  }
+}
+
+pub fn is_nif(maybe_nif: String) -> Bool {
+  // TODO
+  True
+}
+
+pub fn is_postal_code(maybe_postal_code: String) -> Bool {
+  bool.and(
+    string.length(maybe_postal_code) == 5,
+    int.parse(maybe_postal_code) |> result.is_ok(),
+  )
 }
