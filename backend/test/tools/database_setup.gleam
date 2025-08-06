@@ -5,13 +5,14 @@ import gleam/io
 import gleam/list
 import gleam/result
 import gleam/string
-import shared/extra_result
 import simplifile
 import tools/content_migration
 
+const snapshot_location = "test/artifacts/snapshot.db"
+
 pub fn with_clean_db(then: fn() -> Nil) {
   let res = {
-    use <- roll_back_to_snapshot()
+    use <- rollback_to_snapshot()
     then() |> Ok
   }
   case res {
@@ -21,12 +22,24 @@ pub fn with_clean_db(then: fn() -> Nil) {
 }
 
 pub fn with_test_db(then: fn() -> Nil) {
-  use _ <- result.try(prepare_db())
+  case delete_db(fn() { Ok(Nil) }) {
+    Error(err) -> io.println_error("delete_db :: " <> err)
+    Ok(_) -> Nil
+  }
+  case delete_snapshot(fn() { Ok(Nil) }) {
+    Error(err) -> io.println_error("delete_snapshot :: " <> err)
+    Ok(_) -> Nil
+  }
+  case prepare_db() {
+    Error(err) -> io.println_error("prepare_db :: " <> err)
+    Ok(_) -> Nil
+  }
 
+  // Nothing will execute after the then as it calls the gleeunit.main() and that
+  // one will forcefully halt the program after invocation.
+  // Things under are so it compiles
   then()
 
-  use <- delete_db()
-  use <- delete_snapshot()
   Nil |> Ok
 }
 
@@ -34,9 +47,6 @@ pub fn delete_db(after: fn() -> Result(Nil, String)) -> Result(Nil, String) {
   let database_uri = env.get_string_or("DATABASE_URI", "")
   let assert Ok(database_uri) = database_uri |> string.split(":") |> list.last()
   simplifile.delete(database_uri)
-  |> extra_result.inspect_error(fn(err) {
-    io.print_error(err |> string.inspect())
-  })
   |> result.map_error(fn(_) { "Error deleting db" })
   |> result.map(fn(_) { after() })
   |> result.flatten()
@@ -45,10 +55,7 @@ pub fn delete_db(after: fn() -> Result(Nil, String)) -> Result(Nil, String) {
 pub fn delete_snapshot(
   after: fn() -> Result(Nil, String),
 ) -> Result(Nil, String) {
-  simplifile.delete("test-snapshot")
-  |> extra_result.inspect_error(fn(err) {
-    io.print_error(err |> string.inspect())
-  })
+  simplifile.delete(snapshot_location)
   |> result.map_error(fn(_) { "Error deleting snapshot" })
   |> result.map(fn(_) { after() })
   |> result.flatten()
@@ -57,26 +64,20 @@ pub fn delete_snapshot(
 pub fn make_snapshot(after: fn() -> Result(Nil, String)) -> Result(Nil, String) {
   let database_uri = env.get_string_or("DATABASE_URI", "")
   let assert Ok(database_uri) = database_uri |> string.split(":") |> list.last()
-  simplifile.copy_file(database_uri, "test-snapshot")
-  |> extra_result.inspect_error(fn(err) {
-    io.print_error(err |> string.inspect())
-  })
-  |> result.map_error(fn(_) { "Error deleting snapshot" })
+  simplifile.copy_file(database_uri, snapshot_location)
+  |> result.map_error(fn(_) { "Error creating snapshot" })
   |> result.map(fn(_) { after() })
   |> result.flatten()
 }
 
-pub fn roll_back_to_snapshot(
+pub fn rollback_to_snapshot(
   after: fn() -> Result(Nil, String),
 ) -> Result(Nil, String) {
   use <- delete_db()
   let database_uri = env.get_string_or("DATABASE_URI", "")
   let assert Ok(database_uri) = database_uri |> string.split(":") |> list.last()
-  simplifile.copy_file("test-snapshot", database_uri)
-  |> extra_result.inspect_error(fn(err) {
-    io.print_error(err |> string.inspect())
-  })
-  |> result.map_error(fn(_) { "Error deleting snapshot" })
+  simplifile.copy_file(snapshot_location, database_uri)
+  |> result.map_error(fn(_) { "Error rollingback to snapshot" })
   |> result.map(fn(_) { after() })
   |> result.flatten()
 }

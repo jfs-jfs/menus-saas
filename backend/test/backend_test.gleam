@@ -9,6 +9,7 @@ pub fn main() {
   let res = {
     use <- database_setup.with_test_db()
 
+    // Nothing executes after this function
     gleeunit.main()
   }
 
