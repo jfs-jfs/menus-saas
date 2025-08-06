@@ -1,13 +1,16 @@
-import domain/auth/value_objects/email.{type Email}
-import domain/auth/value_objects/password_hash.{type PasswordHash}
 import ports/services/hasher_service.{type HasherService}
-import ports/usecases/auth/create_user.{type CreateUser}
+import ports/usecases/auth/create_user.{
+  type CreateUser, type CreateUserError, RepositoryError, UserAlreadyExists,
+}
 import ports/user_repository.{type UserRepository}
 import shared/extra_result
+import shared/http_codes
+import shared/http_utils
 
-import gleam/dynamic/decode
+import adapters/http/auth/request_decoders/user_creation_request
 import gleam/http
 import gleam/result
+import shared/http_error.{type HttpError, HttpError} as error
 import wisp.{type Request, type Response}
 
 pub fn handle(
@@ -17,32 +20,27 @@ pub fn handle(
   user_repo: UserRepository,
 ) -> Response {
   use <- wisp.require_method(request, http.Post)
-  use json <- wisp.require_json(request)
 
-  let res =
-    decode.run(json, request_decoder(hasher_service))
-    |> extra_result.from_decode_result()
-    |> result.map(fn(mail_and_hash) {
-      create_user.execute(mail_and_hash, user_repo)
-    })
-    |> result.flatten()
+  use body <- http_utils.with_decoded_json_body(
+    request,
+    user_creation_request.decoder(hasher_service),
+  )
 
-  case res {
-    Error(_) -> wisp.bad_request()
-    Ok(_) -> wisp.ok()
-  }
+  body
+  |> create_user.execute(user_repo)
+  |> translate_error()
+  |> extra_result.to_nil()
+  |> error.to_response()
+  |> result.unwrap_error(wisp.ok())
 }
 
-fn request_decoder(
-  hasher_service: HasherService,
-) -> decode.Decoder(#(Email, PasswordHash)) {
-  use email_raw <- decode.field("email", decode.string)
-  use password_raw <- decode.field("password", decode.string)
-  use email <- decode.then(email.decoder(email_raw))
-  use password <- decode.then(password_hash.decoder(
-    password_raw,
-    hasher_service,
-  ))
+fn translate_error(res: Result(a, CreateUserError)) -> Result(a, HttpError) {
+  use error <- result.map_error(res)
 
-  decode.success(#(email, password))
+  case error {
+    RepositoryError ->
+      HttpError(http_codes.internal_server_error, "try again later")
+    UserAlreadyExists ->
+      HttpError(http_codes.conflict, "email is already registered")
+  }
 }

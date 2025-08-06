@@ -1,11 +1,16 @@
 import domain/auth/user
 import domain/auth/value_objects/email
-import gleam/option
+
+pub type UserRepositoryError {
+  DatabaseError(message: String)
+  UserExists
+  UserNotFound
+}
 
 pub type UserRepository {
   UserRepository(
-    save: fn(user.User) -> Result(user.User, String),
-    search_by_email: fn(email.Email) -> Result(option.Option(user.User), String),
-    exists: fn(user.User) -> Result(Bool, String),
+    save: fn(user.User) -> Result(user.User, UserRepositoryError),
+    search_by_email: fn(email.Email) -> Result(user.User, UserRepositoryError),
+    exists: fn(user.User) -> Result(Bool, UserRepositoryError),
   )
 }

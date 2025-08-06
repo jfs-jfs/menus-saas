@@ -4,18 +4,13 @@ import domain/auth/value_objects/email.{InvalidFormat}
 import domain/auth/value_objects/password_hash
 import gleam/dynamic/decode
 import gleam/list
-import gleam/option.{type Option}
+import gleam/option
 import gleam/result
-import gleam/string
-import ports/user_repository.{type UserRepository, UserRepository}
-import sqlight
-import wisp
-
-pub type UserRepositoryError {
-  DatabaseError(sqlight.Error)
-  UserExists
-  UserNotFound
+import ports/user_repository.{
+  type UserRepository, type UserRepositoryError, DatabaseError, UserExists,
+  UserNotFound, UserRepository,
 }
+import sqlight
 
 pub fn build() -> UserRepository {
   UserRepository(save: save, search_by_email: search_by_email, exists: exists)
@@ -88,10 +83,11 @@ fn search_by_email(email: email.Email) -> Result(user.User, UserRepositoryError)
   |> result.flatten()
 }
 
-fn exists(user: User) -> Bool {
+fn exists(user: User) -> Result(Bool, UserRepositoryError) {
   case search_by_email(user.email) {
-    Error(_) -> False
-    Ok(_) -> True
+    Ok(_) -> Ok(True)
+    Error(UserNotFound) -> Ok(False)
+    Error(x) -> Error(x)
   }
 }
 
@@ -126,9 +122,8 @@ fn translate_error(
   use sql_error <- result.map_error(res)
 
   let sqlight.SqlightError(code, message, _) = sql_error
-  wisp.log_warning("DB error : " <> string.inspect(code) <> " :: " <> message)
   case code {
     sqlight.ConstraintUnique -> UserExists
-    _ -> DatabaseError(sql_error)
+    _ -> DatabaseError(message:)
   }
 }
