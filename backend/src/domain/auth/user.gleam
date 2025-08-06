@@ -1,12 +1,13 @@
 import domain/auth/value_objects/email.{type Email}
 import domain/auth/value_objects/password_hash.{type PasswordHash}
+import domain/auth/value_objects/user_id.{type UserId}
 import gleam/option.{type Option, None, Some}
 
 pub type User {
-  User(id: Option(Int), email: Email, password_hash: PasswordHash)
+  User(id: Option(UserId), email: Email, password_hash: PasswordHash)
 }
 
-pub fn load(id: Int, email: Email, password_hash: PasswordHash) -> User {
+pub fn load(id: UserId, email: Email, password_hash: PasswordHash) -> User {
   User(Some(id), email, password_hash)
 }
 
