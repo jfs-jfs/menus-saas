@@ -6,22 +6,30 @@ import gleam/dynamic/decode
 import gleam/list
 import gleam/option.{type Option}
 import gleam/result
+import gleam/string
 import ports/user_repository.{type UserRepository, UserRepository}
 import sqlight
+import wisp
+
+pub type UserRepositoryError {
+  DatabaseError(sqlight.Error)
+  UserExists
+  UserNotFound
+}
 
 pub fn build() -> UserRepository {
   UserRepository(save: save, search_by_email: search_by_email, exists: exists)
 }
 
-fn save(user: User) -> Result(User, String) {
+fn save(user: User) -> Result(User, UserRepositoryError) {
   case user.id {
     option.None -> create(user)
     option.Some(_) -> update(user)
   }
 }
 
-fn create(user: User) -> Result(User, String) {
-  use connection <- result.try(database.open())
+fn create(user: User) -> Result(User, UserRepositoryError) {
+  use connection <- result.try(database.open_ok() |> translate_error())
 
   let res =
     sqlight.query(
@@ -30,24 +38,17 @@ fn create(user: User) -> Result(User, String) {
       [sqlight.text(user.email.value), sqlight.text(user.password_hash.value)],
       decode.dynamic,
     )
-    |> result.map_error(fn(error) { error.message })
+    |> translate_error()
     |> result.map(fn(_) { Nil })
 
-  use _ <- result.try(database.close(connection))
+  use _ <- result.try(database.close_ok(connection) |> translate_error())
   use _ <- result.try(res)
 
   search_by_email(user.email)
-  |> result.map(fn(opt_user) {
-    option.to_result(
-      opt_user,
-      "Unable to find just inserted user: " <> user.email.value,
-    )
-  })
-  |> result.flatten()
 }
 
-fn update(user: User) -> Result(User, String) {
-  use connection <- result.try(database.open())
+fn update(user: User) -> Result(User, UserRepositoryError) {
+  use connection <- result.try(database.open_ok() |> translate_error())
 
   let res =
     sqlight.query(
@@ -56,15 +57,15 @@ fn update(user: User) -> Result(User, String) {
       [sqlight.text(user.email.value), sqlight.text(user.password_hash.value)],
       decode.dynamic,
     )
-    |> result.map_error(fn(error) { error.message })
+    |> translate_error()
     |> result.map(fn(_) { user })
 
-  use _ <- result.try(database.close(connection))
+  use _ <- result.try(database.close_ok(connection) |> translate_error())
   res
 }
 
-fn search_by_email(email: email.Email) -> Result(Option(user.User), String) {
-  use connection <- result.try(database.open())
+fn search_by_email(email: email.Email) -> Result(user.User, UserRepositoryError) {
+  use connection <- result.try(database.open_ok() |> translate_error())
 
   let user_decoder = user_decoder()
 
@@ -75,24 +76,23 @@ fn search_by_email(email: email.Email) -> Result(Option(user.User), String) {
       [sqlight.text(email.value)],
       user_decoder,
     )
-    |> result.map_error(fn(error) { error.message })
 
-  use _ <- result.try(database.close(connection))
+  use _ <- result.try(database.close_ok(connection) |> translate_error())
 
   res
+  |> translate_error()
   |> result.map(fn(users) {
-    users
-    |> list.first()
-    |> option.from_result()
+    list.first(users)
+    |> result.map_error(fn(_) { UserNotFound })
   })
+  |> result.flatten()
 }
 
-fn exists(user: User) -> Result(Bool, String) {
-  use maybe_user <- result.try(search_by_email(user.email))
-
-  maybe_user
-  |> option.is_some()
-  |> Ok()
+fn exists(user: User) -> Bool {
+  case search_by_email(user.email) {
+    Error(_) -> False
+    Ok(_) -> True
+  }
 }
 
 fn user_decoder() -> decode.Decoder(user.User) {
@@ -118,4 +118,17 @@ fn user_decoder() -> decode.Decoder(user.User) {
   use hash <- decode.then(decoder_hash)
 
   decode.success(user.load(id, email, hash))
+}
+
+fn translate_error(
+  res: Result(a, sqlight.Error),
+) -> Result(a, UserRepositoryError) {
+  use sql_error <- result.map_error(res)
+
+  let sqlight.SqlightError(code, message, _) = sql_error
+  wisp.log_warning("DB error : " <> string.inspect(code) <> " :: " <> message)
+  case code {
+    sqlight.ConstraintUnique -> UserExists
+    _ -> DatabaseError(sql_error)
+  }
 }
