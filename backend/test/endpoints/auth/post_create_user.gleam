@@ -1,6 +1,7 @@
 import app/router
 import gleam/json
 import tools/database_setup
+import tools/db_utils
 import wisp/testing
 
 const target = "/auth/register"
@@ -13,8 +14,8 @@ pub fn create_user_ok_test() {
       target,
       [],
       json.object([
-        #("email", json.string("testuser@gmail.com")),
-        #("password", json.string("supersecret123")),
+        #("email", json.string(db_utils.unregistered_user_email())),
+        #("password", json.string(db_utils.unregistered_user_password())),
       ]),
     ))
 
