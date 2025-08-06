@@ -53,3 +53,54 @@ pub fn post_json(
 
   router.handle_request(req) |> then()
 }
+
+pub fn get_json(
+  endpoint: String,
+  headers: List(#(String, String)),
+  then: fn(wisp.Response) -> Nil,
+) -> Nil {
+  let req =
+    testing.get(endpoint, headers)
+    |> request.set_header("content-type", "application/json")
+
+  router.handle_request(req) |> then()
+}
+
+pub fn put_json(
+  endpoint: String,
+  headers: List(#(String, String)),
+  body: String,
+  then: fn(wisp.Response) -> Nil,
+) -> Nil {
+  let req =
+    testing.put(endpoint, headers, body)
+    |> request.set_header("content-type", "application/json")
+
+  router.handle_request(req) |> then()
+}
+
+pub fn patch_json(
+  endpoint: String,
+  headers: List(#(String, String)),
+  body: String,
+  then: fn(wisp.Response) -> Nil,
+) -> Nil {
+  let req =
+    testing.patch(endpoint, headers, body)
+    |> request.set_header("content-type", "application/json")
+
+  router.handle_request(req) |> then()
+}
+
+pub fn delete_json(
+  endpoint: String,
+  headers: List(#(String, String)),
+  body: String,
+  then: fn(wisp.Response) -> Nil,
+) -> Nil {
+  let req =
+    testing.delete(endpoint, headers, body)
+    |> request.set_header("content-type", "application/json")
+
+  router.handle_request(req) |> then()
+}
