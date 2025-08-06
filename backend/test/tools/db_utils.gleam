@@ -3,7 +3,7 @@ import adapters/hasher/sha256_hasher
 /// Get a valid user account, unregistered on the database
 ///
 pub fn unregistered_user() -> #(String, String) {
-  #("unregistered@email.com", "2025@shhhht")
+  #("unregistered@email.com", "2025@Shhhht")
 }
 
 /// Get a valid, unregistered email

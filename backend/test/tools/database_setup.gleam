@@ -16,7 +16,10 @@ pub fn with_clean_db(then: fn() -> Nil) {
     then() |> Ok
   }
   case res {
-    Error(err) -> panic as err
+    Error(err) -> {
+      io.println_error("with_clean_db :: " <> err)
+      panic as err
+    }
     Ok(_) -> Nil
   }
 }
