@@ -42,3 +42,11 @@ pub fn decoder(
       decode.failure(PasswordHash(""), err)
   }
 }
+
+pub fn decoder_hash(hash: String) -> decode.Decoder(PasswordHash) {
+  case create(hash) {
+    Ok(value) -> decode.success(value)
+    Error(InvalidHashFormat(err)) | Error(InvalidPasswordFormat(err)) ->
+      decode.failure(PasswordHash(""), err)
+  }
+}
