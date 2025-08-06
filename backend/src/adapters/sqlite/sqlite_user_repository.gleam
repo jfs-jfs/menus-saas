@@ -1,7 +1,8 @@
 import adapters/sqlite/database
 import domain/auth/user.{type User}
-import domain/auth/value_objects/email.{InvalidFormat}
+import domain/auth/value_objects/email
 import domain/auth/value_objects/password_hash
+import domain/auth/value_objects/user_id
 import gleam/dynamic/decode
 import gleam/list
 import gleam/option
@@ -92,26 +93,14 @@ fn exists(user: User) -> Result(Bool, UserRepositoryError) {
 }
 
 fn user_decoder() -> decode.Decoder(user.User) {
-  use id <- decode.field(0, decode.int)
+  use id_int <- decode.field(0, decode.int)
+  use id <- decode.then(user_id.decoder(id_int))
+
   use email_str <- decode.field(1, decode.string)
+  use email <- decode.then(email.decoder(email_str))
+
   use hash_str <- decode.field(2, decode.string)
-
-  let decoder_email = case email.create(email_str) {
-    Error(InvalidFormat(error)) -> decode.failure(email.Email(""), error)
-    Ok(value) -> decode.success(value)
-  }
-
-  let decoder_hash = case password_hash.create(hash_str) {
-    Error(_) ->
-      decode.failure(
-        password_hash.PasswordHash(""),
-        "Invalid hash in database from user -> " <> email_str,
-      )
-    Ok(value) -> decode.success(value)
-  }
-
-  use email <- decode.then(decoder_email)
-  use hash <- decode.then(decoder_hash)
+  use hash <- decode.then(password_hash.decoder_hash(hash_str))
 
   decode.success(user.load(id, email, hash))
 }
