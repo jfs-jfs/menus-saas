@@ -1,3 +1,4 @@
+import adapters/jwt/jwt_token.{type JWToken, JWToken}
 import dot_env/env
 import gleam/dict
 import gleam/dynamic/decode
@@ -10,7 +11,7 @@ import gwt
 
 pub const payload_key = "payload"
 
-pub fn encode_jwt(payload: json.Json) -> Result(String, String) {
+pub fn encode_jwt(payload: json.Json) -> Result(JWToken, String) {
   use secret <- result.try(env.get_string("JWT_SECRET"))
   use duration <- result.try(env.get_int("JWT_DURATION_HOURS"))
 
@@ -33,12 +34,10 @@ pub fn encode_jwt(payload: json.Json) -> Result(String, String) {
     |> gwt.set_payload_claim(payload_key, payload)
     |> gwt.to_signed_string(gwt.HS256, secret)
 
-  Ok(token)
+  Ok(JWToken(token))
 }
 
-pub fn decode_jwt(
-  maybe_jwt: String,
-) -> Result(dict.Dict(String, String), String) {
+pub fn decode_jwt(token: JWToken) -> Result(dict.Dict(String, String), String) {
   use secret <- result.try(env.get_string("JWT_SECRET"))
 
   let to_extract_payload = fn(token) {
@@ -49,7 +48,7 @@ pub fn decode_jwt(
     )
   }
 
-  gwt.from_signed_string(maybe_jwt, secret)
+  gwt.from_signed_string(token.value, secret)
   |> result.try(to_extract_payload)
   |> result.map_error(fn(_) { "Invalid JWT" })
 }
