@@ -25,14 +25,14 @@ const migration_table_sql = "CREATE TABLE IF NOT EXISTS __migrations (
 fn try_create_migration_table(
   on_created: fn() -> Result(Nil, String),
 ) -> Result(Nil, String) {
-  use connection <- result.try(database.open())
+  use connection <- result.try(database.open() |> translate_error())
 
   let res =
     migration_table_sql
     |> sqlight.exec(connection)
     |> result.map_error(fn(err) { err.message })
 
-  use _ <- result.try(database.close(connection))
+  use _ <- result.try(database.close(connection) |> translate_error())
   use _ <- result.try(res)
 
   on_created()
@@ -41,7 +41,7 @@ fn try_create_migration_table(
 pub fn apply_migrations(migrations: List(Migration)) -> Result(Nil, String) {
   use <- try_create_migration_table()
 
-  use connection <- result.try(database.open())
+  use connection <- result.try(database.open() |> translate_error())
   use applied_migrations <- result.try(applied_migrations_ids(connection))
 
   wisp.log_info("Starting to apply migrations")
@@ -55,7 +55,7 @@ pub fn apply_migrations(migrations: List(Migration)) -> Result(Nil, String) {
       }
     })
 
-  use _ <- result.try(database.close(connection))
+  use _ <- result.try(database.close(connection) |> translate_error())
 
   res
   |> extra_result.inspect(fn(_) {
@@ -72,7 +72,7 @@ pub fn remove_migrations(
 ) -> Result(Nil, String) {
   use <- try_create_migration_table()
 
-  use connection <- result.try(database.open())
+  use connection <- result.try(database.open() |> translate_error())
   use applied_migrations <- result.try(applied_migrations_ids(connection))
 
   let res =
@@ -88,7 +88,7 @@ pub fn remove_migrations(
     })
     |> result.map(fn(_) { Nil })
 
-  use _ <- result.try(database.close(connection))
+  use _ <- result.try(database.close(connection) |> translate_error())
   res
 }
 
@@ -165,4 +165,9 @@ fn remove_migration(
     remove_migrated_mark(migration, connection)
   })
   |> result.flatten()
+}
+
+fn translate_error(res: Result(a, sqlight.Error)) -> Result(a, String) {
+  use sqlight.SqlightError(_, message, _) <- result.map_error(res)
+  message
 }
