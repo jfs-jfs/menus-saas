@@ -31,7 +31,7 @@ pub fn handle(
   |> translate_error()
   |> extra_result.to_nil()
   |> error.to_response()
-  |> result.unwrap_error(wisp.ok())
+  |> result.unwrap_error(wisp.no_content())
 }
 
 fn translate_error(res: Result(a, CreateUserError)) -> Result(a, HttpError) {
