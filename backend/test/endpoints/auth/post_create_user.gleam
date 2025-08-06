@@ -5,7 +5,7 @@ import tools/db_utils
 import tools/e2e_utils
 import tools/shouldx
 
-const target = "/auth/register"
+const target = "/auth/signup"
 
 pub fn create_user_ok_test() {
   use <- database_setup.with_clean_db()
@@ -19,7 +19,7 @@ pub fn create_user_ok_test() {
 
   use response <- e2e_utils.post_json(target, [], request)
 
-  should.equal(response.status, http_codes.ok)
+  should.equal(response.status, http_codes.no_content)
   should.equal(e2e_utils.extract_body(response), "[]")
 }
 
