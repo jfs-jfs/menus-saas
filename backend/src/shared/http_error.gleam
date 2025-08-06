@@ -23,7 +23,7 @@ pub fn to_response(res: Result(a, HttpError)) -> Result(a, wisp.Response) {
   wisp.json_response(
     json.to_string_tree(
       json.object([
-        #("errors", json.array(message |> string.split("\\n"), json.string)),
+        #("errors", json.array(message |> string.split("\n"), json.string)),
       ]),
     ),
     code,
