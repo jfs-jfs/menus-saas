@@ -18,6 +18,10 @@ pub fn create(maybe_hash: String) -> Result(PasswordHash, PasswordError) {
   }
 }
 
+pub fn is_equal(this: PasswordHash, to: PasswordHash) -> Bool {
+  this.value == to.value
+}
+
 pub fn from_plaintext(
   plaintext: String,
   hasher_service: HasherService,

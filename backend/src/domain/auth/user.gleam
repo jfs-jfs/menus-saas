@@ -13,3 +13,7 @@ pub fn load(id: Int, email: Email, password_hash: PasswordHash) -> User {
 pub fn new(email: Email, password_hash: PasswordHash) -> User {
   User(None, email, password_hash)
 }
+
+pub fn can_authenticate(user: User, with: PasswordHash) -> Bool {
+  user.password_hash |> password_hash.is_equal(with)
+}
