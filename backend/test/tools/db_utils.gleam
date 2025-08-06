@@ -21,7 +21,7 @@ pub fn unregistered_user_password() -> String {
 /// Get a valid user account, registered on the database
 ///
 pub fn registered_user() -> #(String, String) {
-  #("registered@email.com", "2025@secret")
+  #("registered@email.com", "2025@Secret")
 }
 
 /// Get a valid, registered hash for the account of registered_user()
