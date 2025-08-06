@@ -2,7 +2,7 @@ import domain/auth/user.{type User}
 import domain/auth/value_objects/email.{type Email}
 import domain/auth/value_objects/password_hash.{type PasswordHash}
 import gleam/result
-import ports/user_repository.{
+import ports/repositories/user_repository.{
   type UserRepository, type UserRepositoryError, DatabaseError, UserExists,
   UserNotFound,
 }

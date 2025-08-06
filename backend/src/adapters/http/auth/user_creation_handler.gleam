@@ -1,8 +1,8 @@
+import ports/repositories/user_repository.{type UserRepository}
 import ports/services/hasher_service.{type HasherService}
 import ports/usecases/auth/create_user.{
   type CreateUser, type CreateUserError, RepositoryError, UserAlreadyExists,
 }
-import ports/user_repository.{type UserRepository}
 import shared/extra_result
 import shared/http_codes
 import shared/http_utils

@@ -6,7 +6,7 @@ import gleam/dynamic/decode
 import gleam/list
 import gleam/option
 import gleam/result
-import ports/user_repository.{
+import ports/repositories/user_repository.{
   type UserRepository, type UserRepositoryError, DatabaseError, UserExists,
   UserNotFound, UserRepository,
 }
