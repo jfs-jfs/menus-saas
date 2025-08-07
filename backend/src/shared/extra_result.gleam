@@ -23,6 +23,10 @@ pub fn to_nil(res: Result(a, b)) -> Result(Nil, b) {
   res |> result.map(fn(_) { Nil })
 }
 
+pub fn clear_error(res: Result(a, b)) -> Result(a, Nil) {
+  res |> result.map_error(fn(_) { Nil })
+}
+
 pub fn from_decode_result(
   res: Result(a, List(decode.DecodeError)),
 ) -> Result(a, String) {
