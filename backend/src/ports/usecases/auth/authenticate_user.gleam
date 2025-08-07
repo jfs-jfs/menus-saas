@@ -12,7 +12,6 @@ import ports/services/authentication_service.{
   ServiceError,
 }
 import shared/state
-import wisp
 
 pub type AuthenticateUserError {
   RepositoryError

@@ -7,7 +7,6 @@ import ports/repositories/user_repository.{
   UserNotFound,
 }
 import shared/state
-import wisp
 
 pub type CreateUserError {
   UserAlreadyExists
