@@ -62,3 +62,17 @@ pub fn password_creation_ok_test() -> Nil {
 
   Nil
 }
+
+pub fn password_is_equal_test() {
+  let assert [Ok(p1), Ok(p2)] = [
+    password_hash.from_plaintext("123@Hola", sha256_hasher.build()),
+    password_hash.from_plaintext("123@Hola", sha256_hasher.build()),
+  ]
+  should.be_true(password_hash.is_equal(p1, p2))
+
+  let assert [Ok(p1), Ok(p2)] = [
+    password_hash.from_plaintext("123@Hola", sha256_hasher.build()),
+    password_hash.from_plaintext("321@Hola", sha256_hasher.build()),
+  ]
+  should.be_false(password_hash.is_equal(p1, p2))
+}
