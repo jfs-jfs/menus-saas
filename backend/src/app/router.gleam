@@ -14,14 +14,14 @@ pub fn handle_request(request: wisp.Request) -> wisp.Response {
 
   case wisp.path_segments(request) {
     ["status"] -> status_handler.handle(request)
-    ["auth", "signup"] ->
+    ["v1", "auth", "signup"] ->
       user_creation_handler.handle(
         request,
         create_user.build(),
         sha256_hasher.build(),
         sqlite_user_repository.build(),
       )
-    ["auth", "login"] ->
+    ["v1", "auth", "login"] ->
       user_login_handler.handle(
         request,
         sha256_hasher.build(),

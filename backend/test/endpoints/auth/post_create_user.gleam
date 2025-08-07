@@ -5,7 +5,7 @@ import tools/db_utils
 import tools/e2e_utils
 import tools/shouldx
 
-const target = "/auth/signup"
+const target = "/v1/auth/signup"
 
 pub fn create_user_ok_test() {
   use <- database_setup.with_clean_db()
