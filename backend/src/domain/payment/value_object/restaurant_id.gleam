@@ -11,7 +11,7 @@ pub type RestaurantId {
 
 pub fn create(maybe_id: Int) -> Result(RestaurantId, RestaurantIdError) {
   case maybe_id |> validate.is_positive() {
-    False -> Error(InvalidId("invalid id format"))
+    False -> Error(InvalidId("invalid restaurant id format"))
     True -> Ok(RestaurantId(maybe_id))
   }
 }
