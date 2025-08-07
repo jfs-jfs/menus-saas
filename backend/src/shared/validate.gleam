@@ -36,9 +36,9 @@ pub fn is_positive(n: Int) -> Bool {
   }
 }
 
-pub fn is_nif(_maybe_nif: String) -> Bool {
-  // TODO
-  True
+pub fn is_nif(maybe_nif: String) -> Bool {
+  // TODO: Better validation
+  bool.or(string.length(maybe_nif) == 9, string.length(maybe_nif) == 10)
 }
 
 pub fn is_postal_code(maybe_postal_code: String) -> Bool {
