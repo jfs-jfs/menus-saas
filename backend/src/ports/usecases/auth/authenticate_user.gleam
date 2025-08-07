@@ -70,7 +70,7 @@ fn translate_error_service(
     impossible_errors ->
       state.impossible_state_reached(
         "AuthUser->translate_error_repo",
-        "usecase authenticate user should not recieve this errors ever :"
+        "usecase authenticate user should not recieve this error ever:"
           <> impossible_errors |> string.inspect(),
       )
   }
