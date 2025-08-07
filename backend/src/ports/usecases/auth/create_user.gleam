@@ -6,6 +6,7 @@ import ports/repositories/user_repository.{
   type UserRepository, type UserRepositoryError, DatabaseError, UserExists,
   UserNotFound,
 }
+import shared/state
 import wisp
 
 pub type CreateUserError {
@@ -39,11 +40,10 @@ fn translate_error(
   case error {
     UserExists -> UserAlreadyExists
     DatabaseError(_) -> RepositoryError
-    UserNotFound -> {
-      wisp.log_critical(
+    UserNotFound ->
+      state.impossible_state_reached(
+        "CreateUser->translate_error",
         "usecase create_user should not recieve UserNotFound ever",
       )
-      panic as "Impossible state reached"
-    }
   }
 }

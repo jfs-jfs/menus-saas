@@ -2,6 +2,7 @@ import domain/auth/user
 import domain/auth/value_objects/email.{type Email}
 import domain/auth/value_objects/password_hash.{type PasswordHash}
 import gleam/result
+import gleam/string
 import ports/repositories/user_repository.{
   type UserRepository, type UserRepositoryError, DatabaseError, UserExists,
   UserNotFound,
@@ -10,6 +11,7 @@ import ports/services/authentication_service.{
   type AuthenticationService, type AuthenticationServiceError, NonPersistentUser,
   ServiceError,
 }
+import shared/state
 import wisp
 
 pub type AuthenticateUserError {
@@ -51,12 +53,11 @@ fn translate_error_repo(
   case error {
     DatabaseError(_) -> RepositoryError
     UserNotFound -> UnableToAuthenticate("invalid credentials")
-    UserExists -> {
-      wisp.log_critical(
+    UserExists ->
+      state.impossible_state_reached(
+        "AuthUser->translate_error_repo",
         "usecase authenticate_user should not recieve UserExists ever",
       )
-      panic as "impossible state reached"
-    }
   }
 }
 
@@ -67,5 +68,11 @@ fn translate_error_service(
   case error {
     NonPersistentUser -> UnableToAuthenticate("invalid credentials")
     ServiceError(_) -> AuthenticationServiceError
+    impossible_errors ->
+      state.impossible_state_reached(
+        "AuthUser->translate_error_repo",
+        "usecase authenticate user should not recieve this errors ever :"
+          <> impossible_errors |> string.inspect(),
+      )
   }
 }
