@@ -36,7 +36,7 @@ pub fn is_positive(n: Int) -> Bool {
   }
 }
 
-pub fn is_nif(maybe_nif: String) -> Bool {
+pub fn is_nif(_maybe_nif: String) -> Bool {
   // TODO
   True
 }
