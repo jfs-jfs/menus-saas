@@ -5,7 +5,7 @@ import domain/auth/value_objects/password_hash
 import domain/auth/value_objects/user_id
 import gleam/dynamic/decode
 import gleam/list
-import gleam/option
+import gleam/option.{None, Some}
 import gleam/result
 import ports/repositories/user_repository.{
   type UserRepository, type UserRepositoryError, DatabaseError, UserExists,
@@ -14,13 +14,18 @@ import ports/repositories/user_repository.{
 import sqlight
 
 pub fn build() -> UserRepository {
-  UserRepository(save: save, search_by_email: search_by_email, exists: exists)
+  UserRepository(
+    save: save,
+    search_by_id: search_by_id,
+    search_by_email: search_by_email,
+    exists: exists,
+  )
 }
 
 fn save(user: User) -> Result(User, UserRepositoryError) {
   case user.id {
-    option.None -> create(user)
-    option.Some(_) -> update(user)
+    None -> create(user)
+    Some(_) -> update(user)
   }
 }
 
@@ -60,6 +65,29 @@ fn update(user: User) -> Result(User, UserRepositoryError) {
   res
 }
 
+fn search_by_id(id: user_id.UserId) -> Result(User, UserRepositoryError) {
+  use connection <- result.try(database.open() |> translate_error())
+
+  let res =
+    sqlight.query(
+      "SELECT id, email, hash FROM users WHERE id ? LIMIT 1",
+      connection,
+      [sqlight.int(id.value)],
+      user_decoder(),
+    )
+
+  use _ <- result.try(database.close(connection) |> translate_error())
+
+  res
+  |> translate_error()
+  |> result.map(fn(users) {
+    users
+    |> list.first()
+    |> result.map_error(fn(_) { UserNotFound })
+  })
+  |> result.flatten()
+}
+
 fn search_by_email(email: email.Email) -> Result(user.User, UserRepositoryError) {
   use connection <- result.try(database.open() |> translate_error())
 
@@ -85,10 +113,20 @@ fn search_by_email(email: email.Email) -> Result(user.User, UserRepositoryError)
 }
 
 fn exists(user: User) -> Result(Bool, UserRepositoryError) {
-  case search_by_email(user.email) {
-    Ok(_) -> Ok(True)
-    Error(UserNotFound) -> Ok(False)
-    Error(x) -> Error(x)
+  let filter_search_errors = fn(res: Result(user, UserRepositoryError)) {
+    case res {
+      Error(UserNotFound) -> Ok(True)
+      Ok(_) -> Ok(True)
+      Error(x) -> Error(x)
+    }
+  }
+
+  case user.id {
+    None -> Ok(False)
+    Some(id) ->
+      id
+      |> search_by_id()
+      |> filter_search_errors()
   }
 }
 

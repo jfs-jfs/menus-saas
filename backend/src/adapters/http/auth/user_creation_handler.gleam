@@ -1,4 +1,3 @@
-import ports/repositories/user_repository.{type UserRepository}
 import ports/services/hasher_service.{type HasherService}
 import ports/usecases/auth/create_user.{
   type CreateUser, type CreateUserError, RepositoryError, UserAlreadyExists,
@@ -17,7 +16,6 @@ pub fn handle(
   request: Request,
   create_user: CreateUser,
   hasher_service: HasherService,
-  user_repo: UserRepository,
 ) -> Response {
   use <- wisp.require_method(request, http.Post)
 
@@ -27,7 +25,7 @@ pub fn handle(
   )
 
   body
-  |> create_user.execute(user_repo)
+  |> create_user.execute()
   |> translate_error()
   |> extra_result.to_nil()
   |> error.to_response()

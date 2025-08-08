@@ -15,13 +15,12 @@ pub type CreateUserError {
 
 pub type CreateUser {
   CreateUser(
-    execute: fn(#(Email, PasswordHash), UserRepository) ->
-      Result(User, CreateUserError),
+    execute: fn(#(Email, PasswordHash)) -> Result(User, CreateUserError),
   )
 }
 
-pub fn build() -> CreateUser {
-  CreateUser(execute)
+pub fn build(repo: UserRepository) -> CreateUser {
+  CreateUser(execute: execute(_, repo))
 }
 
 fn execute(

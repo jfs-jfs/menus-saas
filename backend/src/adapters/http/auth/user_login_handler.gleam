@@ -2,8 +2,6 @@ import adapters/http/auth/request_decoders/user_login_request
 import gleam/http
 import gleam/json
 import gleam/result
-import ports/repositories/user_repository.{type UserRepository}
-import ports/services/authentication_service.{type AuthenticationService}
 import ports/services/hasher_service.{type HasherService}
 import ports/usecases/auth/authenticate_user.{
   type AuthenticateUser, type AuthenticateUserError, AuthenticationServiceError,
@@ -17,8 +15,6 @@ import wisp.{type Request, type Response}
 pub fn handle(
   request: Request,
   hasher: HasherService,
-  user_repo: UserRepository,
-  auth_service: AuthenticationService,
   authenticate_user: AuthenticateUser,
 ) -> Response {
   use <- wisp.require_method(request, http.Post)
@@ -28,7 +24,7 @@ pub fn handle(
   )
 
   body
-  |> authenticate_user.execute(user_repo, auth_service)
+  |> authenticate_user.execute()
   |> translate_error()
   |> http_error.to_response()
   |> result.map(fn(token) { json.object([#("token", json.string(token))]) })

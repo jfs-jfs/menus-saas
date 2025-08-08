@@ -21,13 +21,15 @@ pub type AuthenticateUserError {
 
 pub type AuthenticateUser {
   AuthenticateUser(
-    execute: fn(#(Email, PasswordHash), UserRepository, AuthenticationService) ->
-      Result(String, AuthenticateUserError),
+    execute: fn(#(Email, PasswordHash)) -> Result(String, AuthenticateUserError),
   )
 }
 
-pub fn build() -> AuthenticateUser {
-  AuthenticateUser(execute)
+pub fn build(
+  repo: UserRepository,
+  auth_service: AuthenticationService,
+) -> AuthenticateUser {
+  AuthenticateUser(execute: execute(_, repo, auth_service))
 }
 
 fn execute(
