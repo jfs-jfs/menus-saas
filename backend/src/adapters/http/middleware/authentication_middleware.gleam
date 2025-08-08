@@ -1,6 +1,5 @@
 import adapters/http/common/http_codes
 import domain/auth/types.{type DecodedClaims}
-import domain/auth/user
 import domain/auth/value_objects/authentication_proof.{
   type AuthenticationProof, AuthenticationProof,
 }
@@ -13,6 +12,8 @@ import gleam/result
 import ports/services/authentication_service.{type AuthenticationService}
 import ports/usecases/auth/search_user.{type SearchUserRequest}
 import shared/extra_result
+import shared/state
+import shared/user_identity.{type UserIdentity}
 import wisp
 
 fn filter_unauthenticated(
@@ -55,7 +56,7 @@ pub fn with_authenticated_user(
   request: wisp.Request,
   auth_service: authentication_service.AuthenticationService,
   searcher: search_user.SearchUser,
-  on_authenticated: fn(user.User) -> wisp.Response,
+  on_authenticated: fn(UserIdentity) -> wisp.Response,
 ) -> wisp.Response {
   use AuthenticationProof(claims) <- filter_unauthenticated(
     request,
@@ -66,7 +67,15 @@ pub fn with_authenticated_user(
   let search_request: SearchUserRequest = #(None, Some(email))
 
   case searcher.execute(search_request) {
-    Ok(user) -> on_authenticated(user)
     Error(_) -> http_codes.unauthorized |> wisp.response()
+    Ok(user) ->
+      on_authenticated(
+        user
+        |> user_identity.from_user()
+        |> result.unwrap(state.impossible_state_reached(
+          "AuthMiddleware -> with_authenticated_user",
+          "loaded user from database must have and id",
+        )),
+      )
   }
 }
