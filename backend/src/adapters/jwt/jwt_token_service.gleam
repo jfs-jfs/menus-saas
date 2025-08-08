@@ -1,4 +1,5 @@
-import adapters/jwt/jwt_token
+import adapters/jwt/jwt_tools
+import adapters/jwt/types as jwt_types
 import domain/auth/types.{type DecodedClaims}
 import domain/auth/user
 import gleam/json
@@ -8,7 +9,6 @@ import ports/services/authentication_service.{
   type AuthenticationService, type AuthenticationServiceError,
   AuthenticationService, NonPersistentUser, ServiceError,
 }
-import shared/jwt
 
 pub fn build() -> AuthenticationService {
   AuthenticationService(generate:, validate:)
@@ -18,8 +18,8 @@ fn validate(
   token: types.AuthenticationToken,
 ) -> Result(DecodedClaims, AuthenticationServiceError) {
   token
-  |> jwt_token.JWToken()
-  |> jwt.decode_jwt()
+  |> jwt_types.JWToken()
+  |> jwt_tools.decode_jwt()
   |> result.map_error(fn(_) { authentication_service.UnkownToken(token) })
 }
 
@@ -30,7 +30,7 @@ fn generate(
     option.None -> Error(NonPersistentUser)
     option.Some(_) ->
       json.object([#("email", json.string(user.email.value))])
-      |> jwt.encode_jwt()
+      |> jwt_tools.encode_jwt()
       |> result.map_error(fn(err) { ServiceError(err) })
       |> result.map(fn(token) { token.value })
   }

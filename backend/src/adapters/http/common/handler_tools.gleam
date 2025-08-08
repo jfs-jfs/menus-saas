@@ -1,7 +1,7 @@
+import adapters/http/common/http_error as error
 import gleam/dynamic/decode.{type Decoder}
 import gleam/json.{type Json}
 import gleam/result
-import shared/http_error as error
 import wisp.{type Request, type Response}
 
 pub fn with_decoded_json_body(
