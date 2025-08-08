@@ -6,6 +6,7 @@ import gleam/int
 import gleam/io
 import gleam/list
 import gleam/string_tree
+import tools/dependencies
 import wisp
 import wisp/testing
 
@@ -51,7 +52,8 @@ pub fn post_json(
     testing.post(endpoint, headers, body)
     |> request.set_header("content-type", "application/json")
 
-  router.handle_request(req) |> then()
+  let deps = dependencies.build_test_di()
+  router.handle_request(deps, req) |> then()
 }
 
 pub fn get_json(
@@ -63,7 +65,8 @@ pub fn get_json(
     testing.get(endpoint, headers)
     |> request.set_header("content-type", "application/json")
 
-  router.handle_request(req) |> then()
+  let deps = dependencies.build_test_di()
+  router.handle_request(deps, req) |> then()
 }
 
 pub fn put_json(
@@ -76,7 +79,8 @@ pub fn put_json(
     testing.put(endpoint, headers, body)
     |> request.set_header("content-type", "application/json")
 
-  router.handle_request(req) |> then()
+  let deps = dependencies.build_test_di()
+  router.handle_request(deps, req) |> then()
 }
 
 pub fn patch_json(
@@ -89,7 +93,8 @@ pub fn patch_json(
     testing.patch(endpoint, headers, body)
     |> request.set_header("content-type", "application/json")
 
-  router.handle_request(req) |> then()
+  let deps = dependencies.build_test_di()
+  router.handle_request(deps, req) |> then()
 }
 
 pub fn delete_json(
@@ -102,5 +107,6 @@ pub fn delete_json(
     testing.delete(endpoint, headers, body)
     |> request.set_header("content-type", "application/json")
 
-  router.handle_request(req) |> then()
+  let deps = dependencies.build_test_di()
+  router.handle_request(deps, req) |> then()
 }

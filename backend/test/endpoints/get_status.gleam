@@ -1,7 +1,6 @@
-import app/router
-import wisp/testing
+import tools/e2e_utils
 
 pub fn ok_test() {
-  let response = router.handle_request(testing.get("/status", []))
+  use response <- e2e_utils.get_json("/status", [])
   assert response.status == 200
 }
