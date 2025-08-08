@@ -1,4 +1,7 @@
 import adapters/http/auth/request_decoders/user_login_request
+import adapters/http/common/handler_tools
+import adapters/http/common/http_codes
+import adapters/http/common/http_error.{type HttpError, HttpError}
 import gleam/http
 import gleam/json
 import gleam/result
@@ -7,9 +10,6 @@ import ports/usecases/auth/authenticate_user.{
   type AuthenticateUser, type AuthenticateUserError, AuthenticationServiceError,
   RepositoryError, UnableToAuthenticate,
 }
-import shared/http_codes
-import shared/http_error.{type HttpError, HttpError}
-import shared/http_utils
 import wisp.{type Request, type Response}
 
 pub fn handle(
@@ -18,7 +18,7 @@ pub fn handle(
   authenticate_user: AuthenticateUser,
 ) -> Response {
   use <- wisp.require_method(request, http.Post)
-  use body <- http_utils.with_decoded_json_body(
+  use body <- handler_tools.with_decoded_json_body(
     request,
     user_login_request.decoder(hasher),
   )
@@ -28,7 +28,7 @@ pub fn handle(
   |> translate_error()
   |> http_error.to_response()
   |> result.map(fn(token) { json.object([#("token", json.string(token))]) })
-  |> http_utils.map_json_response(http_codes.ok)
+  |> handler_tools.map_json_response(http_codes.ok)
   |> result.unwrap_both()
 }
 

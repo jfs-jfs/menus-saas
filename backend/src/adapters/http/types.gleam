@@ -1,8 +1,9 @@
 import domain/auth/user
 import wisp
 
-pub type AuthRequest =
-  #(user.User, wisp.Request)
+pub type AuthRequest {
+  AuthRequest(user.User, wisp.Request)
+}
 
 pub type HttpPublicHandler =
   fn(wisp.Request) -> wisp.Response

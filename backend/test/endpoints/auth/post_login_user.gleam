@@ -1,5 +1,5 @@
+import adapters/http/common/http_codes
 import gleeunit/should
-import shared/http_codes
 import tools/database_setup
 import tools/db_utils
 import tools/e2e_utils

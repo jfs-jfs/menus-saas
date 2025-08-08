@@ -1,3 +1,4 @@
+import adapters/http/common/http_codes
 import domain/auth/types.{type DecodedClaims}
 import domain/auth/user
 import domain/auth/value_objects/authentication_proof.{
@@ -12,7 +13,6 @@ import gleam/result
 import ports/services/authentication_service.{type AuthenticationService}
 import ports/usecases/auth/search_user.{type SearchUserRequest}
 import shared/extra_result
-import shared/http_codes
 import wisp
 
 fn filter_unauthenticated(

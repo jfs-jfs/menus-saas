@@ -1,9 +1,9 @@
+import adapters/http/common/http_codes
 import gleam/dynamic/decode
 import gleam/json
 import gleam/result
 import gleam/string
 import shared/extra_result
-import shared/http_codes
 import wisp
 
 pub type HttpError {
