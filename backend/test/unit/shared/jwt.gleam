@@ -1,11 +1,11 @@
-import adapters/jwt/jwt_token.{JWToken}
+import adapters/jwt/jwt_tools as jwt
+import adapters/jwt/types.{JWToken}
 import dot_env/env
 import gleam/dict
 import gleam/dynamic/decode
 import gleam/json
 import gleeunit/should
 import gwt
-import shared/jwt
 
 pub fn jwt_encode_test() {
   let payload = json.object([#("test", json.string("hola perola"))])

@@ -1,4 +1,4 @@
-import adapters/jwt/jwt_token.{type JWToken, JWToken}
+import adapters/jwt/types.{type JWToken, JWToken}
 import dot_env/env
 import gleam/dict
 import gleam/dynamic/decode
