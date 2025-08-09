@@ -10,9 +10,16 @@ pub const email_pattern = "^[\\w\\-\\.]+@([\\w-]+\\.)+[\\w-]{2,}$"
 // Minimum eight characters, at least one upper case English letter, one lower case English letter, one number and one special character 
 pub const password_pattern = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$"
 
+pub const phone_regex = "^(\\+34|0034)?\\s?(6|7|9)[0-9]{8,}$"
+
 fn regex_check(pattern: String, to_check: String) -> Bool {
   let assert Ok(compiled_regex) = regexp.from_string(pattern)
   regexp.check(compiled_regex, to_check)
+}
+
+pub fn is_phone(something: String) -> Bool {
+  phone_regex
+  |> regex_check(something)
 }
 
 pub fn is_email(something: String) -> Bool {

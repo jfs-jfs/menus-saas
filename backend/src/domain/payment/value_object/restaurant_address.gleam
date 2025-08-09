@@ -1,5 +1,7 @@
 import domain/payment/value_object/building_number.{type BuildingNumber}
+import domain/payment/value_object/city.{type City}
 import domain/payment/value_object/postal_code.{type PostalCode}
+import domain/payment/value_object/province.{type Province}
 import domain/payment/value_object/street_name.{type StreetName}
 import gleam/dynamic/decode
 import shared/state
@@ -9,25 +11,31 @@ pub type RestaurantAddressError
 pub type RestaurantAddress {
   RestaurantAddress(
     postal_code: PostalCode,
+    province: Province,
+    city: City,
     street: StreetName,
     number: BuildingNumber,
   )
 }
 
 pub fn create(
-  postal_code: postal_code.PostalCode,
-  street: street_name.StreetName,
-  number: building_number.BuildingNumber,
+  city city: City,
+  street street: StreetName,
+  province province: Province,
+  number number: BuildingNumber,
+  postal_code postal_code: PostalCode,
 ) -> Result(RestaurantAddress, RestaurantAddressError) {
-  Ok(RestaurantAddress(postal_code:, street:, number:))
+  Ok(RestaurantAddress(postal_code:, city:, street:, province:, number:))
 }
 
 pub fn decoder(
-  postal_code: postal_code.PostalCode,
-  street: street_name.StreetName,
-  number: building_number.BuildingNumber,
+  postal_code: PostalCode,
+  street: StreetName,
+  number: BuildingNumber,
+  city: City,
+  province: Province,
 ) -> decode.Decoder(RestaurantAddress) {
-  case create(postal_code, street, number) {
+  case create(city:, street:, number:, postal_code:, province:) {
     Error(_) -> {
       state.impossible_state_reached(
         "restaurant address decoder",
