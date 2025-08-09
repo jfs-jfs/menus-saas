@@ -2,13 +2,26 @@ import domain/payment/value_object/business_name.{type BusinessName}
 import domain/payment/value_object/invoice_information.{type InvoiceInformation}
 import domain/payment/value_object/owner_id.{type OwnerId}
 import domain/payment/value_object/restaurant_id.{type RestaurantId}
-import gleam/option.{type Option}
+import gleam/option.{type Option, None}
 
 pub type Restaurant {
   Restaurant(
     id: Option(RestaurantId),
     owner_id: OwnerId,
     name: BusinessName,
-    wants_invoice: InvoiceInformation,
+    invoice_information: Option(InvoiceInformation),
+  )
+}
+
+pub fn new(
+  owner owner: OwnerId,
+  name name: BusinessName,
+  invoice_info invoice_info: Option(InvoiceInformation),
+) -> Restaurant {
+  Restaurant(
+    id: None,
+    owner_id: owner,
+    name: name,
+    invoice_information: invoice_info,
   )
 }

@@ -1,8 +1,8 @@
-import domain/auth/user
+import shared/user_identity
 import wisp
 
 pub type AuthRequest {
-  AuthRequest(user.User, wisp.Request)
+  AuthRequest(user_identity.UserIdentity, wisp.Request)
 }
 
 pub type HttpPublicHandler =
