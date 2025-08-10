@@ -1,7 +1,7 @@
+import domain/payment/value_object/invoice_address.{type InvoiceAddress}
 import domain/payment/value_object/nif.{type NIF}
 import domain/payment/value_object/recipient_email.{type RecipientEmail}
 import domain/payment/value_object/recipient_name.{type RecipientName}
-import domain/payment/value_object/restaurant_address.{type RestaurantAddress}
 import gleam/dynamic/decode
 import shared/state
 
@@ -12,7 +12,7 @@ pub type InvoiceInformation {
     nif: NIF,
     name: RecipientName,
     email: RecipientEmail,
-    address: RestaurantAddress,
+    address: InvoiceAddress,
   )
 }
 
@@ -20,7 +20,7 @@ pub fn create(
   nif: NIF,
   recipient: RecipientName,
   email: RecipientEmail,
-  address: RestaurantAddress,
+  address: InvoiceAddress,
 ) -> Result(InvoiceInformation, InvoiceInformationError) {
   Ok(InvoiceInformation(nif:, address:, email:, name: recipient))
 }
@@ -29,7 +29,7 @@ pub fn decoder(
   nif: NIF,
   to: RecipientName,
   to_email: RecipientEmail,
-  address: RestaurantAddress,
+  address: InvoiceAddress,
 ) -> decode.Decoder(InvoiceInformation) {
   case create(nif, to, to_email, address) {
     Ok(value) -> decode.success(value)
