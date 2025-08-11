@@ -11,6 +11,13 @@ pub fn inspect(res: Result(a, b), func: fn(a) -> Nil) -> Result(a, b) {
   })
 }
 
+pub fn lazy_unrwap_error(result: Result(a, b), or default: fn() -> b) -> b {
+  case result {
+    Ok(_) -> default()
+    Error(err) -> err
+  }
+}
+
 pub fn inspect_error(res: Result(a, b), func: fn(b) -> Nil) -> Result(a, b) {
   res
   |> result.map_error(fn(value) {

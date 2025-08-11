@@ -1,17 +1,20 @@
 import dot_env/env
 import gleam/result
+import shared/extra_result
 import sqlight
 
 pub fn with_connection(
   error_translate: fn(Result(a, sqlight.Error)) -> Result(a, b),
   then: fn(sqlight.Connection) -> Result(a, b),
 ) -> Result(a, b) {
-  use connection <- result.try(open() |> error_translate())
+  let error_translate = fn(err: sqlight.Error) -> b {
+    error_translate(Error(err))
+    |> extra_result.lazy_unrwap_error(fn() { panic as "logic has bronken down" })
+  }
 
+  use connection <- result.try(open() |> result.map_error(error_translate))
   let res = then(connection)
-
-  use _ <- result.try(close(connection) |> error_translate())
-
+  use _ <- result.try(close(connection) |> result.map_error(error_translate))
   res
 }
 

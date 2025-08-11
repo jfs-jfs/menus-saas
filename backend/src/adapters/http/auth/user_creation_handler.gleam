@@ -3,7 +3,6 @@ import ports/services/hasher_service.{type HasherService}
 import ports/usecases/auth/create_user.{
   type CreateUser, type CreateUserError, RepositoryError, UserAlreadyExists,
 }
-import shared/extra_result
 
 import adapters/http/auth/request_decoders/user_creation_request
 import adapters/http/common/handler_tools
@@ -27,7 +26,6 @@ pub fn handle(
   body
   |> create_user.execute()
   |> translate_error()
-  |> extra_result.to_nil()
   |> error.to_response()
   |> result.unwrap_error(wisp.no_content())
 }
