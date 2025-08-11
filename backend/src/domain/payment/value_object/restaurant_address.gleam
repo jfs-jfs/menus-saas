@@ -18,7 +18,7 @@ pub fn create(
   Ok(RestaurantAddress(city:, street:, province:))
 }
 
-pub fn decoder(
+pub fn decode(
   street: StreetName,
   city: City,
   province: Province,

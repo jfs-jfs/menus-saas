@@ -18,7 +18,7 @@ pub fn create(
   }
 }
 
-pub fn decoder(maybe_email: String) -> decode.Decoder(RecipientEmail) {
+pub fn decode(maybe_email: String) -> decode.Decoder(RecipientEmail) {
   case create(maybe_email) {
     Error(InvalidFormat(error)) -> decode.failure(RecipientEmail(""), error)
     Ok(value) -> decode.success(value)

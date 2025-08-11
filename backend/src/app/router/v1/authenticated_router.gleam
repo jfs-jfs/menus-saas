@@ -19,11 +19,11 @@ pub fn handle_request(
   )
 
   case request.method, path {
-    // http.Post, ["restaurant"] -> {
-    //   use user <- with_user()
-    //   deps.http_handlers.restaurant_creation(AuthRequest(user, request))
-    // }
-    // _, ["restaurant"] -> wisp.method_not_allowed([http.Post])
+    http.Post, ["restaurant"] -> {
+      use user <- with_user()
+      deps.http_handlers.restaurant_creation(AuthRequest(user, request))
+    }
+    _, ["restaurant"] -> wisp.method_not_allowed([http.Post])
     _, _ -> then()
   }
 }

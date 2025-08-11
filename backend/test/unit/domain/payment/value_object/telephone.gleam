@@ -1,6 +1,4 @@
 import domain/payment/value_object/telephone
-import gleam/list
-import gleeunit/should
 
 pub fn telephone_creation_ok_test() {
   let assert Ok(telephone.Telephone(_)) = telephone.create("0034 676616562")

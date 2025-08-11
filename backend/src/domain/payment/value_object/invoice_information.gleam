@@ -4,7 +4,6 @@ import domain/payment/value_object/recipient_email.{type RecipientEmail}
 import domain/payment/value_object/recipient_name.{type RecipientName}
 import gleam/dynamic/decode
 import shared/state
-import wisp
 
 pub type InvoiceInformationError
 

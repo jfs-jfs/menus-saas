@@ -1,21 +1,27 @@
 import adapters/sqlite/database
 import domain/payment/restaurant.{type Restaurant, Restaurant}
+import domain/payment/value_object/building_number
 import domain/payment/value_object/business_name
 import domain/payment/value_object/city
-import domain/payment/value_object/invoice_information.{
-  type InvoiceInformation, InvoiceInformation,
-}
+import domain/payment/value_object/invoice_address.{InvoiceAddress}
+import domain/payment/value_object/invoice_information.{InvoiceInformation}
+import domain/payment/value_object/nif
 import domain/payment/value_object/owner_id
+import domain/payment/value_object/postal_code
 import domain/payment/value_object/province
+import domain/payment/value_object/recipient_email
+import domain/payment/value_object/recipient_name
+import domain/payment/value_object/restaurant_address.{RestaurantAddress}
 import domain/payment/value_object/restaurant_id
+import domain/payment/value_object/street_name
 import domain/payment/value_object/telephone
 import gleam/dynamic/decode
 import gleam/list
 import gleam/option.{None, Some}
 import gleam/result
 import ports/repositories/restaurant_repository.{
-  type RestaurantRepository, type RestaurantRepositoryError, RestaurantNotFound,
-  RestaurantRepository,
+  type RestaurantRepository, type RestaurantRepositoryError, DatabaseError,
+  RestaurantAlreadyExists, RestaurantNotFound, RestaurantRepository,
 }
 import shared/extra_result
 import sqlight
@@ -32,7 +38,82 @@ fn save(entity: Restaurant) -> Result(Restaurant, RestaurantRepositoryError) {
 }
 
 fn update(entity: Restaurant) -> Result(Restaurant, RestaurantRepositoryError) {
-  todo
+  use connection <- database.with_connection(translate_error)
+  let assert Restaurant(
+    Some(id),
+    _owner_id,
+    name,
+    telephone,
+    address,
+    invoice_information,
+  ) = entity
+
+  let res =
+    "
+  UPDATE
+    restaurants
+  SET
+    name = ?,
+    phone = ?,
+    address_province = ?,
+    address_city = ?,
+    address_street = ?
+  WHERE
+    restaurant id = ?;
+  "
+    |> sqlight.query(
+      connection,
+      [
+        sqlight.text(name.value),
+        sqlight.text(telephone.value),
+        sqlight.text(address.province.value),
+        sqlight.text(address.city.value),
+        sqlight.text(address.street.value),
+        sqlight.int(id |> restaurant_id.value()),
+      ],
+      decode.dynamic,
+    )
+    |> translate_error()
+
+  use _ <- result.try(res)
+
+  case invoice_information {
+    None -> Ok(entity)
+    Some(information) -> {
+      "
+      UPDATE
+        restaurant_invoice_information
+      SET
+        nif = ?,
+        recipient_name = ?,
+        recipient_email = ?,
+        address_province = ?,
+        address_postal_code = ?,
+        address_city = ?,
+        address_street = ?,
+        address_building_number = ?
+      WHERE
+        restaurant_invoice_information.restaurant_id = ?;
+      "
+      |> sqlight.query(
+        connection,
+        [
+          sqlight.text(information.nif.value),
+          sqlight.text(information.name.value),
+          sqlight.text(information.email.value),
+          sqlight.text(information.address.province.value),
+          sqlight.text(information.address.postal_code.value),
+          sqlight.text(information.address.city.value),
+          sqlight.text(information.address.street.value),
+          sqlight.text(information.address.number.value),
+          sqlight.int(id |> restaurant_id.value()),
+        ],
+        decode.dynamic,
+      )
+      |> translate_error()
+      |> result.map(fn(_) { entity })
+    }
+  }
 }
 
 fn create(entity: Restaurant) -> Result(Restaurant, RestaurantRepositoryError) {
@@ -73,10 +154,10 @@ fn create(entity: Restaurant) -> Result(Restaurant, RestaurantRepositoryError) {
   use _ <- result.try(database.close(connection) |> translate_error())
   use _ <- result.try(res)
 
-  let res = search_by_owner(owner_id)
+  use restaurant <- result.try(search_by_owner(owner_id))
 
   case invoice_information {
-    None -> res
+    None -> Ok(restaurant)
     Some(_) -> create_invoice_information(entity)
   }
 }
@@ -133,7 +214,6 @@ fn search_by_owner(
     r.address_province,
     r.address_city,
     r.address_street,
-    rii.restaurant_id,
     rii.nif,
     rii.recipient_name,
     rii.recipient_email,
@@ -168,7 +248,16 @@ fn search_by_owner(
 fn translate_error(
   res: Result(a, sqlight.Error),
 ) -> Result(a, RestaurantRepositoryError) {
-  todo
+  use sql_error <- result.map_error(res)
+  let sqlight.SqlightError(code, message, _) = sql_error
+  case code {
+    sqlight.Constraint
+    | sqlight.ConstraintCheck
+    | sqlight.ConstraintForeignkey
+    | sqlight.ConstraintPrimarykey
+    | sqlight.ConstraintUnique -> RestaurantAlreadyExists
+    _ -> DatabaseError(message)
+  }
 }
 
 fn decode_restaurant() -> decode.Decoder(Restaurant) {
@@ -190,9 +279,77 @@ fn decode_restaurant() -> decode.Decoder(Restaurant) {
   use city_str <- decode.field(5, decode.string)
   use city <- decode.then(city.decode(city_str))
 
-  todo
-}
+  use street_str <- decode.field(6, decode.string)
+  use street <- decode.then(street_name.decode(street_str))
 
-fn deocde_invoice_info() -> decode.Decoder(InvoiceInformation) {
-  todo
+  use maybe_nif <- decode.field(7, decode.optional(decode.string))
+
+  case maybe_nif {
+    None ->
+      decode.success(Restaurant(
+        id: Some(id),
+        owner_id: owner,
+        name: name,
+        telephone: phone,
+        address: RestaurantAddress(
+          province: province,
+          city: city,
+          street: street,
+        ),
+        invoice_information: None,
+      ))
+    Some(nif_str) -> {
+      use nif <- decode.then(nif.decoder(nif_str))
+
+      use recipient_name_str <- decode.field(8, decode.string)
+      use recipient_name <- decode.then(recipient_name.decode(
+        recipient_name_str,
+      ))
+
+      use recipient_email_str <- decode.field(9, decode.string)
+      use recipient_email <- decode.then(recipient_email.decode(
+        recipient_email_str,
+      ))
+
+      use invoice_province_str <- decode.field(10, decode.string)
+      use invoice_province <- decode.then(province.decode(invoice_province_str))
+
+      use invoice_postal_str <- decode.field(11, decode.string)
+      use invoice_postal <- decode.then(postal_code.decode(invoice_postal_str))
+
+      use invoice_city_str <- decode.field(12, decode.string)
+      use invoice_city <- decode.then(city.decode(invoice_city_str))
+
+      use invoice_street_str <- decode.field(13, decode.string)
+      use invoice_street <- decode.then(street_name.decode(invoice_street_str))
+
+      use invoice_building_number_str <- decode.field(14, decode.string)
+      use invoice_building_number <- decode.then(building_number.decoder(
+        invoice_building_number_str,
+      ))
+      decode.success(Restaurant(
+        id: Some(id),
+        owner_id: owner,
+        name: name,
+        telephone: phone,
+        address: RestaurantAddress(
+          province: province,
+          city: city,
+          street: street,
+        ),
+        invoice_information: Some(InvoiceInformation(
+          nif: nif,
+          name: recipient_name,
+          email: recipient_email,
+          address: InvoiceAddress(
+            invoice_postal,
+            invoice_province,
+            invoice_city,
+            invoice_street,
+            invoice_building_number,
+          ),
+        )),
+      ))
+    }
+  }
 }

@@ -16,7 +16,7 @@ pub fn create(maybe_code: String) -> Result(PostalCode, PostalCodeError) {
   }
 }
 
-pub fn decoder(maybe_code: String) -> decode.Decoder(PostalCode) {
+pub fn decode(maybe_code: String) -> decode.Decoder(PostalCode) {
   case create(maybe_code) {
     Error(InvalidFormat(error)) -> decode.failure(PostalCode(""), error)
     Ok(value) -> decode.success(value)

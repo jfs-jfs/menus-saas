@@ -17,7 +17,7 @@ pub fn create(maybe_street: String) -> Result(StreetName, StreetNameError) {
   }
 }
 
-pub fn decoder(maybe_street: String) -> decode.Decoder(StreetName) {
+pub fn decode(maybe_street: String) -> decode.Decoder(StreetName) {
   case create(maybe_street) {
     Error(InvalidFormat(error)) -> decode.failure(StreetName(""), error)
     Ok(value) -> decode.success(value)

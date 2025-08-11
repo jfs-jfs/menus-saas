@@ -1,4 +1,4 @@
-import domain/payment/value_object/recipient_email.{RecipientEmail}
+import domain/payment/value_object/recipient_email
 import gleeunit/should
 
 pub fn recipient_email_ok_test() {
