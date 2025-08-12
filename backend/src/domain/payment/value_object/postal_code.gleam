@@ -1,4 +1,5 @@
 import gleam/dynamic/decode
+import gleam/json
 import shared/validate
 
 pub type PostalCodeError {
@@ -7,6 +8,10 @@ pub type PostalCodeError {
 
 pub type PostalCode {
   PostalCode(value: String)
+}
+
+pub fn to_json(postal_code: PostalCode) -> json.Json {
+  json.string(postal_code.value)
 }
 
 pub fn create(maybe_code: String) -> Result(PostalCode, PostalCodeError) {

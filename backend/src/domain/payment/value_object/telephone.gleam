@@ -1,4 +1,5 @@
 import gleam/dynamic/decode
+import gleam/json
 import shared/validate
 
 pub type TelephoneError {
@@ -7,6 +8,11 @@ pub type TelephoneError {
 
 pub type Telephone {
   Telephone(value: String)
+}
+
+pub fn to_json(telephone: Telephone) -> json.Json {
+  let Telephone(value:) = telephone
+  json.string(value)
 }
 
 pub fn create(maybe_phone: String) -> Result(Telephone, TelephoneError) {

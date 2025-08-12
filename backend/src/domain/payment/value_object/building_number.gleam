@@ -1,5 +1,6 @@
 import gleam/bool
 import gleam/dynamic/decode
+import gleam/json
 import gleam/string
 
 pub type BuildingNumberError {
@@ -8,6 +9,10 @@ pub type BuildingNumberError {
 
 pub type BuildingNumber {
   BuildingNumber(value: String)
+}
+
+pub fn to_json(building_number: BuildingNumber) -> json.Json {
+  json.string(building_number.value)
 }
 
 pub fn create(
