@@ -4,7 +4,11 @@ import domain/payment/value_object/owner_id.{type OwnerId}
 import domain/payment/value_object/restaurant_address.{type RestaurantAddress}
 import domain/payment/value_object/restaurant_id.{type RestaurantId}
 import domain/payment/value_object/telephone.{type Telephone}
-import gleam/option.{type Option, None}
+import gleam/option.{type Option, None, Some}
+
+pub type RestaurantError {
+  AlreadyHasInvoiceInformation
+}
 
 pub type Restaurant {
   Restaurant(
@@ -32,4 +36,23 @@ pub fn new(
     telephone: telephone,
     address: address,
   )
+}
+
+pub fn add_invoice_information(
+  restaurant: Restaurant,
+  invoice_information: InvoiceInformation,
+) -> Result(Restaurant, RestaurantError) {
+  case restaurant.invoice_information {
+    Some(_) -> Error(AlreadyHasInvoiceInformation)
+    None ->
+      Restaurant(
+        id: restaurant.id,
+        owner_id: restaurant.owner_id,
+        name: restaurant.name,
+        telephone: restaurant.telephone,
+        address: restaurant.address,
+        invoice_information: Some(invoice_information),
+      )
+      |> Ok
+  }
 }
