@@ -1,10 +1,16 @@
 import domain/auth/value_objects/email.{type Email}
 import domain/auth/value_objects/password_hash.{type PasswordHash}
 import domain/auth/value_objects/user_id.{type UserId}
+import gleam/json
 import gleam/option.{type Option, None, Some}
 
 pub type User {
   User(id: Option(UserId), email: Email, password_hash: PasswordHash)
+}
+
+pub fn to_json(user: User) -> json.Json {
+  let User(_, email, _) = user
+  json.object([#("email", email.to_json(email))])
 }
 
 pub fn load(id: UserId, email: Email, password_hash: PasswordHash) -> User {
