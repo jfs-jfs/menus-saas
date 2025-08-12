@@ -9,6 +9,9 @@ on:
 jobs:
   test-backend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - uses: actions/checkout@v4
       - uses: erlef/setup-beam@v1
@@ -18,7 +21,6 @@ jobs:
           rebar3-version: "3"
           # elixir-version: "1"
       - run: sudo apt install inotify-tools -y
-      - run: sudo apt install inotify-tools -y
-      - run: cd backend/ && gleam deps download
-      - run: cd backend/ && gleam format --check src test
-      - run: cd backend/ && gleam test
+      - run: gleam deps download
+      - run: gleam format --check src test
+      - run: gleam test
