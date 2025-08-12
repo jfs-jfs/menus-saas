@@ -70,7 +70,7 @@ fn search_by_id(id: user_id.UserId) -> Result(User, UserRepositoryError) {
 
   let res =
     sqlight.query(
-      "SELECT id, email, hash FROM users WHERE id ? LIMIT 1",
+      "SELECT id, email, hash FROM users WHERE id = ? LIMIT 1",
       connection,
       [sqlight.int(id |> user_id.value())],
       user_decoder(),
