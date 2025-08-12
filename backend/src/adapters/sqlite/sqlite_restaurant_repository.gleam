@@ -158,7 +158,13 @@ fn create(entity: Restaurant) -> Result(Restaurant, RestaurantRepositoryError) {
 
   case invoice_information {
     None -> Ok(restaurant)
-    Some(_) -> create_invoice_information(entity)
+    Some(info) -> {
+      let assert Ok(restaurant) =
+        restaurant
+        |> restaurant.add_invoice_information(info)
+
+      create_invoice_information(restaurant)
+    }
   }
 }
 
@@ -181,7 +187,7 @@ fn create_invoice_information(
     address_city,
     address_street,
     address_building_number
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   "
   |> sqlight.query(
     connection,
@@ -193,6 +199,7 @@ fn create_invoice_information(
       sqlight.text(address.province.value),
       sqlight.text(address.postal_code.value),
       sqlight.text(address.city.value),
+      sqlight.text(address.street.value),
       sqlight.text(address.number.value),
     ],
     decode.dynamic,
