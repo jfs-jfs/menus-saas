@@ -21,7 +21,7 @@ fn filter_unauthenticated(
   auth_service: AuthenticationService,
   then: fn(AuthenticationProof) -> wisp.Response,
 ) -> wisp.Response {
-  let token_header = env.get_string_or("JWT_HEADER", "Authentication")
+  let token_header = env.get_string_or("JWT_HEADER", "authentication")
 
   let proof_or_error =
     request
@@ -62,20 +62,23 @@ pub fn with_authenticated_user(
     request,
     auth_service,
   )
+
   use email <- with_parsed_claims(claims)
 
   let search_request: SearchUserRequest = #(None, Some(email))
 
   case searcher.execute(search_request) {
     Error(_) -> http_codes.unauthorized |> wisp.response()
-    Ok(user) ->
-      on_authenticated(
+    Ok(user) -> {
+      let identifier =
         user
         |> user_identity.from_user()
-        |> result.unwrap(state.impossible_state_reached(
+        |> result.lazy_unwrap(state.lazy_carsh(
           "AuthMiddleware -> with_authenticated_user",
           "loaded user from database must have and id",
-        )),
-      )
+        ))
+
+      on_authenticated(identifier)
+    }
   }
 }

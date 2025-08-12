@@ -33,7 +33,10 @@ pub fn decoder(owner: OwnerId) -> decode.Decoder(CreateRestaurantRequest) {
 
   use address <- decode.then(restaurant_address.decode(street, city, province))
 
-  use invoice_information <- decode.then(decode.optional(invoice_decoder()))
+  use invoice_information <- decode.field(
+    "invoice",
+    decode.optional(invoice_decoder()),
+  )
 
   decode.success(create_restaurant.CreateRestaurantRequest(
     owner,
@@ -45,29 +48,29 @@ pub fn decoder(owner: OwnerId) -> decode.Decoder(CreateRestaurantRequest) {
 }
 
 fn invoice_decoder() -> decode.Decoder(InvoiceInformation) {
-  use nif_str <- decode.field("invoice_nif", decode.string)
+  use nif_str <- decode.field("nif", decode.string)
   use nif <- decode.then(nif.decoder(nif_str))
 
-  use name_str <- decode.field("invoice_recipient", decode.string)
+  use name_str <- decode.field("recipient", decode.string)
   use name <- decode.then(recipient_name.decode(name_str))
 
-  use email_str <- decode.field("invoice_recipient_email", decode.string)
+  use email_str <- decode.field("recipient_email", decode.string)
   use email <- decode.then(recipient_email.decode(email_str))
 
-  use city_str <- decode.field("invoice_address_city", decode.string)
+  use city_str <- decode.field("address_city", decode.string)
   use city <- decode.then(city.decode(city_str))
 
-  use street_str <- decode.field("invoice_address_street", decode.string)
+  use street_str <- decode.field("address_street", decode.string)
   use street <- decode.then(street_name.decode(street_str))
 
-  use province_str <- decode.field("invoice_address_province", decode.string)
+  use province_str <- decode.field("address_province", decode.string)
   use province <- decode.then(province.decode(province_str))
 
-  use postal_str <- decode.field("invoice_address_postal_code", decode.string)
+  use postal_str <- decode.field("address_postal_code", decode.string)
   use postal <- decode.then(postal_code.decode(postal_str))
 
   use building_number_str <- decode.field(
-    "invoice_address_building_number",
+    "address_building_number",
     decode.string,
   )
   use building_number <- decode.then(building_number.decoder(
