@@ -1,6 +1,7 @@
 name: test-backend
 
 on:
+  pushes:
   pull_request:
     branches:
       - master
@@ -16,7 +17,8 @@ jobs:
           gleam-version: "1.11.1"
           rebar3-version: "3"
           # elixir-version: "1"
-      - run: sudo apt install inotify-tools -y- run: sudo apt install inotify-tools -y
+      - run: sudo apt install inotify-tools -y
+      - run: sudo apt install inotify-tools -y
       - run: cd backend/ && gleam deps download
       - run: cd backend/ && gleam format --check src test
       - run: cd backend/ && gleam test
