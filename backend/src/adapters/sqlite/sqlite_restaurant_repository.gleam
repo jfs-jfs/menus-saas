@@ -59,7 +59,7 @@ fn update(entity: Restaurant) -> Result(Restaurant, RestaurantRepositoryError) {
     address_city = ?,
     address_street = ?
   WHERE
-    restaurant id = ?;
+    id = ?;
   "
     |> sqlight.query(
       connection,
@@ -93,7 +93,7 @@ fn update(entity: Restaurant) -> Result(Restaurant, RestaurantRepositoryError) {
         address_street = ?,
         address_building_number = ?
       WHERE
-        restaurant_invoice_information.restaurant_id = ?;
+        restaurant_id = ?;
       "
       |> sqlight.query(
         connection,
