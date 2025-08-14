@@ -25,28 +25,6 @@ pub type Restaurant {
   )
 }
 
-pub fn to_json(restaurant: Restaurant) -> json.Json {
-  let Restaurant(
-    _id,
-    _owner_id,
-    name:,
-    telephone:,
-    address:,
-    invoice_information:,
-  ) = restaurant
-  json.object([
-    #("name", business_name.to_json(name)),
-    #("phone", telephone.to_json(telephone)),
-    #("address_province", province.to_json(address.province)),
-    #("address_city", city.to_json(address.city)),
-    #("address_street", street_name.to_json(address.street)),
-    #("invoice", case invoice_information {
-      None -> json.null()
-      Some(information) -> invoice_information.to_json(information)
-    }),
-  ])
-}
-
 pub fn new(
   owner owner: OwnerId,
   name name: BusinessName,
@@ -81,4 +59,76 @@ pub fn add_invoice_information(
       )
       |> Ok
   }
+}
+
+pub fn set_name(restaurant: Restaurant, name: BusinessName) -> Restaurant {
+  Restaurant(
+    id: restaurant.id,
+    owner_id: restaurant.owner_id,
+    name: name,
+    telephone: restaurant.telephone,
+    address: restaurant.address,
+    invoice_information: restaurant.invoice_information,
+  )
+}
+
+pub fn set_phone(restaurant: Restaurant, phone: Telephone) -> Restaurant {
+  Restaurant(
+    id: restaurant.id,
+    owner_id: restaurant.owner_id,
+    name: restaurant.name,
+    telephone: phone,
+    address: restaurant.address,
+    invoice_information: restaurant.invoice_information,
+  )
+}
+
+pub fn set_address(
+  restaurant: Restaurant,
+  address: RestaurantAddress,
+) -> Restaurant {
+  Restaurant(
+    id: restaurant.id,
+    owner_id: restaurant.owner_id,
+    name: restaurant.name,
+    telephone: restaurant.telephone,
+    address: address,
+    invoice_information: restaurant.invoice_information,
+  )
+}
+
+pub fn set_invoice_information(
+  restaurant: Restaurant,
+  invoice_information: Option(InvoiceInformation),
+) -> Restaurant {
+  Restaurant(
+    id: restaurant.id,
+    owner_id: restaurant.owner_id,
+    name: restaurant.name,
+    telephone: restaurant.telephone,
+    address: restaurant.address,
+    invoice_information: invoice_information,
+  )
+}
+
+pub fn to_json(restaurant: Restaurant) -> json.Json {
+  let Restaurant(
+    _id,
+    _owner_id,
+    name:,
+    telephone:,
+    address:,
+    invoice_information:,
+  ) = restaurant
+  json.object([
+    #("name", business_name.to_json(name)),
+    #("phone", telephone.to_json(telephone)),
+    #("address_province", province.to_json(address.province)),
+    #("address_city", city.to_json(address.city)),
+    #("address_street", street_name.to_json(address.street)),
+    #("invoice", case invoice_information {
+      None -> json.null()
+      Some(information) -> invoice_information.to_json(information)
+    }),
+  ])
 }
