@@ -32,6 +32,13 @@ pub fn handle_request(
       use user <- with_user
       deps.http_handlers.restaurant_information(AuthRequest(user, request))
     }
+    http.Put, ["restaurant"] -> {
+      use user <- with_user
+      deps.http_handlers.restaurant_update_information(AuthRequest(
+        user,
+        request,
+      ))
+    }
     _, ["restaurant"] -> wisp.method_not_allowed([http.Post, http.Get])
     _, _ -> then()
   }
