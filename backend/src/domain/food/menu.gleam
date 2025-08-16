@@ -1,15 +1,15 @@
 import domain/food/menu_family
 import domain/food/value_object/aviability
+import domain/food/value_object/establishment_id
 import domain/food/value_object/menu_id
 import domain/food/value_object/menu_name
-import domain/food/value_object/place_id
 import domain/food/value_object/price
 import gleam/option
 
 pub type Menu {
   Menu(
     id: menu_id.MenuId,
-    place: place_id.PlaceId,
+    establishment: establishment_id.EstablishmentId,
     name: menu_name.MenuName,
     aviability: aviability.Aviability,
     price: price.Price,
