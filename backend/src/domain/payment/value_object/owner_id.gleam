@@ -1,6 +1,6 @@
 import gleam/dynamic/decode
 import gleam/result
-import shared/value_object/numeric_id
+import shared/value_object/numeric_id.{NumericId}
 
 pub type OwnerIdError =
   numeric_id.NumericIdError
@@ -10,7 +10,7 @@ pub type OwnerId {
 }
 
 pub fn value(id: OwnerId) -> Int {
-  let OwnerId(numeric_id.NumericId(value)) = id
+  let OwnerId(NumericId(value)) = id
   value
 }
 

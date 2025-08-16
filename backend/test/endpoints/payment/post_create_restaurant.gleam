@@ -29,7 +29,12 @@ pub fn create_restaurant_ok_full_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
 
   should.equal(response.status, http_codes.no_content)
   should.equal(e2e_utils.extract_body(response), "[]")
@@ -48,7 +53,12 @@ pub fn create_restaurant_ok_partial_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
 
   should.equal(response.status, http_codes.no_content)
   should.equal(e2e_utils.extract_body(response), "[]")
@@ -76,7 +86,12 @@ pub fn create_restaurant_ko_invalid_invoice_number_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -105,7 +120,12 @@ pub fn create_restaurant_ko_missing_invoice_bumber_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -136,7 +156,12 @@ pub fn create_restaurant_ko_invalid_invoice_street_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -165,7 +190,12 @@ pub fn create_restaurant_ko_missing_invoice_street_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -196,7 +226,12 @@ pub fn create_restaurant_ko_invalid_invoice_city_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -225,7 +260,12 @@ pub fn create_restaurant_ko_missing_invoice_city_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -256,7 +296,12 @@ pub fn create_restaurant_ko_invalid_invoice_postal_code_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -285,7 +330,12 @@ pub fn create_restaurant_ko_missing_invoice_postal_code_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -316,7 +366,12 @@ pub fn create_restaurant_ko_invalid_invoice_province_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -345,7 +400,12 @@ pub fn create_restaurant_ko_missing_invoice_province_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -376,7 +436,12 @@ pub fn create_restaurant_ko_invalid_recipient_email_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -405,7 +470,12 @@ pub fn create_restaurant_ko_missing_recipient_email_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -436,7 +506,12 @@ pub fn create_restaurant_ko_invalid_recipient_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -465,7 +540,12 @@ pub fn create_restaurant_ko_missing_recipient_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -496,7 +576,12 @@ pub fn create_restaurant_ko_invalid_nif_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -525,7 +610,12 @@ pub fn create_restaurant_ko_missing_nif_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -547,7 +637,12 @@ pub fn create_restaurant_ko_invalid_street_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -566,7 +661,12 @@ pub fn create_restaurant_ko_missing_street_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -587,7 +687,12 @@ pub fn create_restaurant_ko_invalid_city_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -606,7 +711,12 @@ pub fn create_restaurant_ko_missing_city_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -627,7 +737,12 @@ pub fn create_restaurant_ko_invalid_province_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -646,7 +761,12 @@ pub fn create_restaurant_ko_missing_province_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -667,7 +787,12 @@ pub fn create_restaurant_ko_invalid_phone_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -687,7 +812,12 @@ pub fn create_restaurant_ko_missing_phone_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -708,7 +838,12 @@ pub fn create_restaurant_ko_invalid_name_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)
@@ -728,7 +863,12 @@ pub fn create_restaurant_ko_missing_name_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(target, [], request)
+  use response <- e2e_utils.post_authenticated_json(
+    db_utils.user_no_restaurant(),
+    target,
+    [],
+    request,
+  )
   should.equal(response.status, http_codes.bad_request)
 
   let body = e2e_utils.extract_body(response)

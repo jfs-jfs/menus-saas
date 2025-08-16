@@ -1,5 +1,6 @@
 import gleam/bool
 import gleam/dynamic/decode
+import gleam/json
 import gleam/string
 
 pub type BusinessNameError {
@@ -8,6 +9,11 @@ pub type BusinessNameError {
 
 pub type BusinessName {
   BusinessName(value: String)
+}
+
+pub fn to_json(business_name: BusinessName) -> json.Json {
+  let BusinessName(value:) = business_name
+  json.string(value)
 }
 
 pub fn create(maybe_name: String) -> Result(BusinessName, BusinessNameError) {

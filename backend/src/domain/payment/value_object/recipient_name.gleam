@@ -1,4 +1,5 @@
 import gleam/dynamic/decode
+import gleam/json
 import gleam/string
 
 pub type RecipientNameError {
@@ -7,6 +8,10 @@ pub type RecipientNameError {
 
 pub type RecipientName {
   RecipientName(value: String)
+}
+
+pub fn to_json(recipient_name: RecipientName) -> json.Json {
+  json.string(recipient_name.value)
 }
 
 pub fn create(maybe_name: String) -> Result(RecipientName, RecipientNameError) {

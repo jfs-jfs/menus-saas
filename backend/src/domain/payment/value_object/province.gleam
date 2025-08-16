@@ -1,4 +1,5 @@
 import gleam/dynamic/decode
+import gleam/json
 import gleam/string
 
 pub type ProvinceError {
@@ -7,6 +8,10 @@ pub type ProvinceError {
 
 pub type Province {
   Province(value: String)
+}
+
+pub fn to_json(province: Province) -> json.Json {
+  json.string(province.value)
 }
 
 pub fn create(maybe_province: String) -> Result(Province, ProvinceError) {

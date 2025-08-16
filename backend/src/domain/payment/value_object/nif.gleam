@@ -1,4 +1,5 @@
 import gleam/dynamic/decode
+import gleam/json
 import shared/validate
 
 pub type NIFError {
@@ -7,6 +8,10 @@ pub type NIFError {
 
 pub type NIF {
   NIF(value: String)
+}
+
+pub fn to_json(nif: NIF) -> json.Json {
+  json.string(nif.value)
 }
 
 pub fn create(maybe_nif: String) -> Result(NIF, NIFError) {

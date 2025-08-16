@@ -27,7 +27,7 @@ import shared/extra_result
 import sqlight
 
 pub fn build() -> RestaurantRepository {
-  RestaurantRepository(save:)
+  RestaurantRepository(save:, search_by_owner:)
 }
 
 fn save(entity: Restaurant) -> Result(Restaurant, RestaurantRepositoryError) {
