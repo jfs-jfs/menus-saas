@@ -53,3 +53,83 @@ pub fn invalid_email() -> String {
 pub fn invalid_password() -> String {
   "1234"
 }
+
+pub fn get_restaurant_name() -> String {
+  "La madre de Juan"
+}
+
+pub fn get_invalid_restaurant_name() -> String {
+  ""
+}
+
+pub fn get_phone() -> String {
+  "+34 676616562"
+}
+
+pub fn get_invalid_phone() -> String {
+  "1573590283"
+}
+
+pub fn get_province() -> String {
+  "Barcelona"
+}
+
+pub fn get_invalid_province() -> String {
+  ""
+}
+
+pub fn get_city() -> String {
+  "Zaragoza"
+}
+
+pub fn get_invalid_city() -> String {
+  ""
+}
+
+pub fn get_street() -> String {
+  "Carrer del Pinyo"
+}
+
+pub fn get_invalid_street() -> String {
+  ""
+}
+
+pub fn get_nif() -> String {
+  "12345678Z"
+}
+
+pub fn get_invalid_nif() -> String {
+  "skdjf"
+}
+
+pub fn get_name() -> String {
+  "Antonio de la Pera"
+}
+
+pub fn get_invalid_name() -> String {
+  ""
+}
+
+pub fn get_email() -> String {
+  "lapolla@records.es"
+}
+
+pub fn get_invalid_email() -> String {
+  "eeeeh@aaaah"
+}
+
+pub fn get_postal_code() -> String {
+  "08100"
+}
+
+pub fn get_invalid_postal_code() -> String {
+  "1234567890"
+}
+
+pub fn get_building_number() -> String {
+  "44A"
+}
+
+pub fn get_invalid_building_number() -> String {
+  ""
+}

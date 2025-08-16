@@ -1,11 +1,15 @@
 import app/router
+import dot_env/env
 import gleam/bit_array
 import gleam/bytes_tree
+import gleam/dynamic/decode
 import gleam/http/request
 import gleam/int
 import gleam/io
+import gleam/json
 import gleam/list
 import gleam/string_tree
+import tools/db_utils
 import tools/dependencies
 import wisp
 import wisp/testing
@@ -40,6 +44,40 @@ pub fn print_response(res: wisp.Response) -> Nil {
   io.println("  ]")
   io.println("  body -> " <> extract_body(res))
   io.println("]")
+}
+
+pub fn post_authenticated_json(
+  endpoint: String,
+  headers: List(#(String, String)),
+  body: String,
+  then: fn(wisp.Response) -> Nil,
+) -> Nil {
+  let request = "
+  {
+    \"email\": \"" <> db_utils.registered_user_email() <> "\",
+    \"password\": \"" <> db_utils.registered_user_password() <> "\"
+  }
+  "
+
+  use response <- post_json("/v1/auth/login", [], request)
+  let answer_body = extract_body(response)
+
+  let body_decode = {
+    use token <- decode.field("token", decode.string)
+    decode.success(token)
+  }
+
+  let assert Ok(token) = json.parse(answer_body, body_decode)
+
+  post_json(
+    endpoint,
+    headers
+      |> list.append([
+        #(env.get_string_or("JWT_HEADER", "authentication"), token),
+      ]),
+    body,
+    then,
+  )
 }
 
 pub fn post_json(

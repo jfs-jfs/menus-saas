@@ -24,7 +24,6 @@ pub fn handle_request(
       deps.http_handlers.restaurant_creation(AuthRequest(user, request))
     }
     _, ["restaurant"] -> wisp.method_not_allowed([http.Post])
-
     _, _ -> then()
   }
 }

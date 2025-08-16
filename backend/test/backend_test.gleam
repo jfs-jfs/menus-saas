@@ -1,6 +1,6 @@
 import dot_env
+import glacier
 import gleam/io
-import gleeunit
 import tools/database_setup
 
 pub fn main() {
@@ -10,7 +10,7 @@ pub fn main() {
     use <- database_setup.with_test_db()
 
     // Nothing executes after this function
-    gleeunit.main()
+    glacier.main()
   }
 
   case res {

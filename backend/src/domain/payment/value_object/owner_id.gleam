@@ -1,24 +1,24 @@
 import gleam/dynamic/decode
-import shared/validate
+import gleam/result
+import shared/value_object/numeric_id
 
-pub type OwnerIdError {
-  InvalidId(String)
-}
+pub type OwnerIdError =
+  numeric_id.NumericIdError
 
 pub type OwnerId {
-  OwnerId(value: Int)
+  OwnerId(numeric_id.NumericId)
+}
+
+pub fn value(id: OwnerId) -> Int {
+  let OwnerId(numeric_id.NumericId(value)) = id
+  value
 }
 
 pub fn create(maybe_id: Int) -> Result(OwnerId, OwnerIdError) {
-  case maybe_id |> validate.is_positive() {
-    False -> Error(InvalidId("invalid owner id format"))
-    True -> Ok(OwnerId(maybe_id))
-  }
+  numeric_id.create(maybe_id) |> result.map(OwnerId)
 }
 
 pub fn decoder(maybe_id: Int) -> decode.Decoder(OwnerId) {
-  case create(maybe_id) {
-    Error(InvalidId(error)) -> decode.failure(OwnerId(-1), error)
-    Ok(value) -> decode.success(value)
-  }
+  use numeric_id <- decode.then(numeric_id.decoder(maybe_id))
+  OwnerId(numeric_id) |> decode.success
 }

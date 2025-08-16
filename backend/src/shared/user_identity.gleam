@@ -3,9 +3,10 @@ import domain/auth/value_objects/user_id
 import domain/payment/value_object/owner_id
 import gleam/option
 import gleam/result
+import shared/value_object/numeric_id
 
 pub type UserIdentity {
-  UserIdentity(Int)
+  UserIdentity(numeric_id.NumericId)
 }
 
 pub type UserIdentityError {
@@ -13,9 +14,9 @@ pub type UserIdentityError {
 }
 
 pub fn from_user(user: User) -> Result(UserIdentity, UserIdentityError) {
-  user.id
-  |> option.to_result(UnableToBuild)
-  |> result.map(fn(user_id) { UserIdentity(user_id.value) })
+  use user_id <- result.try(option.to_result(user.id, UnableToBuild))
+  let user_id.UserId(numeric_id) = user_id
+  UserIdentity(numeric_id) |> Ok
 }
 
 pub fn to_user(id: UserIdentity) -> user_id.UserId {

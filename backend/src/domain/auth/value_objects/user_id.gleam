@@ -1,24 +1,24 @@
 import gleam/dynamic/decode
-import shared/validate
+import gleam/result
+import shared/value_object/numeric_id
 
-pub type UserIdError {
-  InvalidId(String)
-}
+pub type UserIdError =
+  numeric_id.NumericIdError
 
 pub type UserId {
-  UserId(value: Int)
+  UserId(numeric_id.NumericId)
+}
+
+pub fn value(id: UserId) -> Int {
+  let UserId(numeric_id.NumericId(value)) = id
+  value
 }
 
 pub fn create(maybe_id: Int) -> Result(UserId, UserIdError) {
-  case maybe_id |> validate.is_positive() {
-    True -> Ok(UserId(maybe_id))
-    False -> Error(InvalidId("invalid user id format"))
-  }
+  numeric_id.create(maybe_id) |> result.map(UserId)
 }
 
 pub fn decoder(maybe_id: Int) -> decode.Decoder(UserId) {
-  case create(maybe_id) {
-    Error(InvalidId(error)) -> decode.failure(UserId(-1), error)
-    Ok(value) -> decode.success(value)
-  }
+  use numeric_id <- decode.then(numeric_id.decoder(maybe_id))
+  UserId(numeric_id) |> decode.success
 }

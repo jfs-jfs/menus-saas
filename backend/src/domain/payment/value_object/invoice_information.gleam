@@ -1,15 +1,42 @@
+import domain/payment/value_object/invoice_address.{type InvoiceAddress}
 import domain/payment/value_object/nif.{type NIF}
-import domain/payment/value_object/restaurant_address.{type RestaurantAddress}
+import domain/payment/value_object/recipient_email.{type RecipientEmail}
+import domain/payment/value_object/recipient_name.{type RecipientName}
+import gleam/dynamic/decode
+import shared/state
 
 pub type InvoiceInformationError
 
 pub type InvoiceInformation {
-  InvoiceInformation(nif: NIF, address: RestaurantAddress)
+  InvoiceInformation(
+    nif: NIF,
+    name: RecipientName,
+    email: RecipientEmail,
+    address: InvoiceAddress,
+  )
 }
 
 pub fn create(
   nif: NIF,
-  address: RestaurantAddress,
+  recipient: RecipientName,
+  email: RecipientEmail,
+  address: InvoiceAddress,
 ) -> Result(InvoiceInformation, InvoiceInformationError) {
-  Ok(InvoiceInformation(nif:, address:))
+  Ok(InvoiceInformation(nif:, address:, email:, name: recipient))
+}
+
+pub fn decoder(
+  nif: NIF,
+  to: RecipientName,
+  to_email: RecipientEmail,
+  address: InvoiceAddress,
+) -> decode.Decoder(InvoiceInformation) {
+  case create(nif, to, to_email, address) {
+    Ok(value) -> decode.success(value)
+    Error(_) ->
+      state.impossible_state_reached(
+        "invoice info -> decoder",
+        "should not fail as it is an aggregate",
+      )
+  }
 }
