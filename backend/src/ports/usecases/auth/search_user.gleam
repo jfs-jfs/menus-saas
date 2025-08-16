@@ -3,7 +3,6 @@ import domain/auth/value_objects/email.{type Email}
 import domain/auth/value_objects/user_id.{type UserId}
 import gleam/option.{type Option, None, Some}
 import gleam/result
-import gleam/string
 import ports/repositories/user_repository.{
   type UserRepository, type UserRepositoryError, DatabaseError,
 }
@@ -15,6 +14,7 @@ pub type SearchUserRequest =
 pub type SearchUserError {
   MissingSearchParameter
   RepositoryError
+  UserNotFound
 }
 
 pub type SearchUser {
@@ -50,11 +50,11 @@ fn translate_error(
   use error <- result.map_error(res)
   case error {
     DatabaseError(_) -> RepositoryError
-    unreachable_errors ->
+    user_repository.UserNotFound -> UserNotFound
+    user_repository.UserExists ->
       state.impossible_state_reached(
         "SearchUser->translate_error",
-        "usecase search user should not receive this error ever: "
-          <> unreachable_errors |> string.inspect(),
+        "usecase search user should not receive this error ever (UserExists) ",
       )
   }
 }

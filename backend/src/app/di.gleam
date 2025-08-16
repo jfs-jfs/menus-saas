@@ -1,5 +1,6 @@
 import adapters/hasher/sha256_hasher
 import adapters/http/auth/user_creation_handler
+import adapters/http/auth/user_information_handler
 import adapters/http/auth/user_login_handler
 import adapters/http/payment/restaurant_creation_handler
 import adapters/http/payment/restaurant_information_handler
@@ -51,6 +52,7 @@ pub type HttpHandlersBag {
     // Auth Domain
     auth_signup: HttpPublicHandler,
     auth_login: HttpPublicHandler,
+    user_information: HttpPrivateHandler,
     // Payment Domain
     restaurant_creation: HttpPrivateHandler,
     restaurant_information: HttpPrivateHandler,
@@ -98,6 +100,7 @@ pub fn build() -> Bag {
         services.hasher,
         usecases.auth_user,
       ),
+      user_information: user_information_handler.handle(_, usecases.search_user),
       restaurant_creation: restaurant_creation_handler.handle(
         _,
         usecases.create_restaurant,
