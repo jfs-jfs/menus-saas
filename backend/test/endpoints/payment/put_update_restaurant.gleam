@@ -7,7 +7,30 @@ import tools/shouldx
 
 const target = "/v1/restaurant"
 
-pub fn create_restaurant_ok_full_test() {
+pub fn update_restaurant_ok_partial_test() {
+  use <- database_setup.with_clean_db()
+
+  let request = "
+      {
+        \"name\": \"" <> db_utils.get_restaurant_name() <> "\",
+        \"phone\": \"" <> db_utils.get_phone() <> "\",
+        \"address_province\": \"" <> db_utils.get_province() <> "\",
+        \"address_city\": \"" <> db_utils.get_city() <> "\",
+        \"address_street\": \"" <> db_utils.get_street() <> "\",
+        \"invoice\": null
+      }
+    "
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
+    target,
+    [],
+    request,
+  )
+
+  should.equal(response.status, http_codes.ok)
+}
+
+pub fn update_restaurant_ok_full_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -29,18 +52,17 @@ pub fn create_restaurant_ok_full_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_no_invoice_info(),
     target,
     [],
     request,
   )
 
-  should.equal(response.status, http_codes.no_content)
-  should.equal(e2e_utils.extract_body(response), "[]")
+  should.equal(response.status, http_codes.ok)
 }
 
-pub fn create_restaurant_ok_partial_test() {
+pub fn update_restaurant_ko_user_with_no_restaurant_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -50,21 +72,32 @@ pub fn create_restaurant_ok_partial_test() {
         \"address_province\": \"" <> db_utils.get_province() <> "\",
         \"address_city\": \"" <> db_utils.get_city() <> "\",
         \"address_street\": \"" <> db_utils.get_street() <> "\",
-        \"invoice\": null
+        \"invoice\": {
+          \"nif\": \"" <> db_utils.get_nif() <> "\",
+          \"recipient\": \"" <> db_utils.get_name() <> "\",
+          \"recipient_email\": \"" <> db_utils.get_email() <> "\",
+          \"address_province\": \"" <> db_utils.get_province() <> "\",
+          \"address_postal_code\": \"" <> db_utils.get_postal_code() <> "\",
+          \"address_city\": \"" <> db_utils.get_city() <> "\",
+          \"address_street\": \"" <> db_utils.get_street() <> "\",
+          \"address_building_number\": \"" <> db_utils.get_building_number() <> "\"
+        }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
+  use response <- e2e_utils.put_authenticated_json(
     db_utils.user_no_restaurant(),
     target,
     [],
     request,
   )
 
-  should.equal(response.status, http_codes.no_content)
-  should.equal(e2e_utils.extract_body(response), "[]")
+  should.equal(response.status, http_codes.not_found)
+
+  let body = e2e_utils.extract_body(response)
+  body |> shouldx.contain("no restaurant associated with user")
 }
 
-pub fn create_restaurant_ko_invalid_invoice_number_test() {
+pub fn update_restaurant_ko_invalid_invoice_number_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -86,8 +119,8 @@ pub fn create_restaurant_ko_invalid_invoice_number_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -99,7 +132,7 @@ pub fn create_restaurant_ko_invalid_invoice_number_test() {
   body |> shouldx.contain("invalid building number")
 }
 
-pub fn create_restaurant_ko_missing_invoice_bumber_test() {
+pub fn update_restaurant_ko_missing_invoice_bumber_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -120,8 +153,8 @@ pub fn create_restaurant_ko_missing_invoice_bumber_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -134,7 +167,7 @@ pub fn create_restaurant_ko_missing_invoice_bumber_test() {
   body |> shouldx.contain("field was expected but found nothing")
 }
 
-pub fn create_restaurant_ko_invalid_invoice_street_test() {
+pub fn update_restaurant_ko_invalid_invoice_street_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -156,8 +189,8 @@ pub fn create_restaurant_ko_invalid_invoice_street_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -169,7 +202,7 @@ pub fn create_restaurant_ko_invalid_invoice_street_test() {
   body |> shouldx.contain("invalid street")
 }
 
-pub fn create_restaurant_ko_missing_invoice_street_test() {
+pub fn update_restaurant_ko_missing_invoice_street_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -190,8 +223,8 @@ pub fn create_restaurant_ko_missing_invoice_street_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -204,7 +237,7 @@ pub fn create_restaurant_ko_missing_invoice_street_test() {
   body |> shouldx.contain("field was expected but found nothing")
 }
 
-pub fn create_restaurant_ko_invalid_invoice_city_test() {
+pub fn update_restaurant_ko_invalid_invoice_city_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -226,8 +259,8 @@ pub fn create_restaurant_ko_invalid_invoice_city_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -239,7 +272,7 @@ pub fn create_restaurant_ko_invalid_invoice_city_test() {
   body |> shouldx.contain("unknown city")
 }
 
-pub fn create_restaurant_ko_missing_invoice_city_test() {
+pub fn update_restaurant_ko_missing_invoice_city_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -260,8 +293,8 @@ pub fn create_restaurant_ko_missing_invoice_city_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -274,7 +307,7 @@ pub fn create_restaurant_ko_missing_invoice_city_test() {
   body |> shouldx.contain("field was expected but found nothing")
 }
 
-pub fn create_restaurant_ko_invalid_invoice_postal_code_test() {
+pub fn update_restaurant_ko_invalid_invoice_postal_code_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -296,8 +329,8 @@ pub fn create_restaurant_ko_invalid_invoice_postal_code_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -309,7 +342,7 @@ pub fn create_restaurant_ko_invalid_invoice_postal_code_test() {
   body |> shouldx.contain("invalid postal code")
 }
 
-pub fn create_restaurant_ko_missing_invoice_postal_code_test() {
+pub fn update_restaurant_ko_missing_invoice_postal_code_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -330,8 +363,8 @@ pub fn create_restaurant_ko_missing_invoice_postal_code_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -344,7 +377,7 @@ pub fn create_restaurant_ko_missing_invoice_postal_code_test() {
   body |> shouldx.contain("field was expected but found nothing")
 }
 
-pub fn create_restaurant_ko_invalid_invoice_province_test() {
+pub fn update_restaurant_ko_invalid_invoice_province_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -366,8 +399,8 @@ pub fn create_restaurant_ko_invalid_invoice_province_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -379,7 +412,7 @@ pub fn create_restaurant_ko_invalid_invoice_province_test() {
   body |> shouldx.contain("invalid province")
 }
 
-pub fn create_restaurant_ko_missing_invoice_province_test() {
+pub fn update_restaurant_ko_missing_invoice_province_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -400,8 +433,8 @@ pub fn create_restaurant_ko_missing_invoice_province_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -414,7 +447,7 @@ pub fn create_restaurant_ko_missing_invoice_province_test() {
   body |> shouldx.contain("field was expected but found nothing")
 }
 
-pub fn create_restaurant_ko_invalid_recipient_email_test() {
+pub fn update_restaurant_ko_invalid_recipient_email_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -436,8 +469,8 @@ pub fn create_restaurant_ko_invalid_recipient_email_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -449,7 +482,7 @@ pub fn create_restaurant_ko_invalid_recipient_email_test() {
   body |> shouldx.contain("invalid email format")
 }
 
-pub fn create_restaurant_ko_missing_recipient_email_test() {
+pub fn update_restaurant_ko_missing_recipient_email_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -470,8 +503,8 @@ pub fn create_restaurant_ko_missing_recipient_email_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -484,7 +517,7 @@ pub fn create_restaurant_ko_missing_recipient_email_test() {
   body |> shouldx.contain("field was expected but found nothing")
 }
 
-pub fn create_restaurant_ko_invalid_recipient_test() {
+pub fn update_restaurant_ko_invalid_recipient_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -506,8 +539,8 @@ pub fn create_restaurant_ko_invalid_recipient_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -519,7 +552,7 @@ pub fn create_restaurant_ko_invalid_recipient_test() {
   body |> shouldx.contain("invalid recipient name")
 }
 
-pub fn create_restaurant_ko_missing_recipient_test() {
+pub fn update_restaurant_ko_missing_recipient_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -540,8 +573,8 @@ pub fn create_restaurant_ko_missing_recipient_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -554,7 +587,7 @@ pub fn create_restaurant_ko_missing_recipient_test() {
   body |> shouldx.contain("field was expected but found nothing")
 }
 
-pub fn create_restaurant_ko_invalid_nif_test() {
+pub fn update_restaurant_ko_invalid_nif_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -576,8 +609,8 @@ pub fn create_restaurant_ko_invalid_nif_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -589,7 +622,7 @@ pub fn create_restaurant_ko_invalid_nif_test() {
   body |> shouldx.contain("invalid nif format")
 }
 
-pub fn create_restaurant_ko_missing_nif_test() {
+pub fn update_restaurant_ko_missing_nif_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -610,8 +643,8 @@ pub fn create_restaurant_ko_missing_nif_test() {
         }
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -624,7 +657,7 @@ pub fn create_restaurant_ko_missing_nif_test() {
   body |> shouldx.contain("invalid nif format")
 }
 
-pub fn create_restaurant_ko_invalid_street_test() {
+pub fn update_restaurant_ko_invalid_street_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -637,8 +670,8 @@ pub fn create_restaurant_ko_invalid_street_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -649,7 +682,7 @@ pub fn create_restaurant_ko_invalid_street_test() {
   body |> shouldx.contain("invalid street format")
 }
 
-pub fn create_restaurant_ko_missing_street_test() {
+pub fn update_restaurant_ko_missing_street_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -661,8 +694,8 @@ pub fn create_restaurant_ko_missing_street_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -674,7 +707,7 @@ pub fn create_restaurant_ko_missing_street_test() {
   body |> shouldx.contain("field was expected but found nothing")
 }
 
-pub fn create_restaurant_ko_invalid_city_test() {
+pub fn update_restaurant_ko_invalid_city_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -687,8 +720,8 @@ pub fn create_restaurant_ko_invalid_city_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -699,7 +732,7 @@ pub fn create_restaurant_ko_invalid_city_test() {
   body |> shouldx.contain("unknown city")
 }
 
-pub fn create_restaurant_ko_missing_city_test() {
+pub fn update_restaurant_ko_missing_city_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -711,8 +744,8 @@ pub fn create_restaurant_ko_missing_city_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -724,7 +757,7 @@ pub fn create_restaurant_ko_missing_city_test() {
   body |> shouldx.contain("field was expected but found nothing")
 }
 
-pub fn create_restaurant_ko_invalid_province_test() {
+pub fn update_restaurant_ko_invalid_province_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -737,8 +770,8 @@ pub fn create_restaurant_ko_invalid_province_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -749,7 +782,7 @@ pub fn create_restaurant_ko_invalid_province_test() {
   body |> shouldx.contain("invalid province")
 }
 
-pub fn create_restaurant_ko_missing_province_test() {
+pub fn update_restaurant_ko_missing_province_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -761,8 +794,8 @@ pub fn create_restaurant_ko_missing_province_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -774,7 +807,7 @@ pub fn create_restaurant_ko_missing_province_test() {
   body |> shouldx.contain("field was expected but found nothing")
 }
 
-pub fn create_restaurant_ko_invalid_phone_test() {
+pub fn update_restaurant_ko_invalid_phone_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -787,8 +820,8 @@ pub fn create_restaurant_ko_invalid_phone_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -800,7 +833,7 @@ pub fn create_restaurant_ko_invalid_phone_test() {
   body |> shouldx.contain("invalid phone number")
 }
 
-pub fn create_restaurant_ko_missing_phone_test() {
+pub fn update_restaurant_ko_missing_phone_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -812,8 +845,8 @@ pub fn create_restaurant_ko_missing_phone_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -825,7 +858,7 @@ pub fn create_restaurant_ko_missing_phone_test() {
   body |> shouldx.contain("field was expected but found nothing")
 }
 
-pub fn create_restaurant_ko_invalid_name_test() {
+pub fn update_restaurant_ko_invalid_name_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -838,8 +871,8 @@ pub fn create_restaurant_ko_invalid_name_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -851,7 +884,7 @@ pub fn create_restaurant_ko_invalid_name_test() {
   body |> shouldx.contain("invalid business name format")
 }
 
-pub fn create_restaurant_ko_missing_name_test() {
+pub fn update_restaurant_ko_missing_name_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -863,8 +896,8 @@ pub fn create_restaurant_ko_missing_name_test() {
         \"invoice\": null
       }
     "
-  use response <- e2e_utils.post_authenticated_json(
-    db_utils.user_no_restaurant(),
+  use response <- e2e_utils.put_authenticated_json(
+    db_utils.user_full_restaurant(),
     target,
     [],
     request,
@@ -876,7 +909,7 @@ pub fn create_restaurant_ko_missing_name_test() {
   body |> shouldx.contain("field was expected but found nothing")
 }
 
-pub fn create_restaurant_ko_unauthenticated_partial_test() {
+pub fn update_restaurant_ko_unauthenticated_partial_test() {
   use <- database_setup.with_clean_db()
 
   let request = "
@@ -895,7 +928,7 @@ pub fn create_restaurant_ko_unauthenticated_partial_test() {
   should.equal(e2e_utils.extract_body(response), "[]")
 }
 
-pub fn create_restaurant_ko_unauthenticated_full_test() {
+pub fn update_restaurant_ko_unauthenticated_full_test() {
   use <- database_setup.with_clean_db()
 
   let request = "

@@ -1,7 +1,10 @@
 import adapters/hasher/sha256_hasher
 import adapters/http/auth/user_creation_handler
+import adapters/http/auth/user_information_handler
 import adapters/http/auth/user_login_handler
 import adapters/http/payment/restaurant_creation_handler
+import adapters/http/payment/restaurant_information_handler
+import adapters/http/payment/restaurant_update_information_handler
 import adapters/http/status_handler
 import adapters/jwt/jwt_token_service
 import adapters/sqlite/sqlite_restaurant_repository
@@ -14,6 +17,8 @@ import ports/usecases/auth/authenticate_user
 import ports/usecases/auth/create_user
 import ports/usecases/auth/search_user
 import ports/usecases/payment/create_restaurant
+import ports/usecases/payment/search_restaurant
+import ports/usecases/payment/update_restaurant
 
 import adapters/http/types.{type HttpPrivateHandler, type HttpPublicHandler}
 
@@ -38,15 +43,23 @@ pub type UsecasesBag {
     auth_user: authenticate_user.AuthenticateUser,
     search_user: search_user.SearchUser,
     create_restaurant: create_restaurant.CreateRestaurant,
+    search_restaurant: search_restaurant.SearchRestaurant,
+    update_restaurant: update_restaurant.UpdateRestaurant,
   )
 }
 
 pub type HttpHandlersBag {
   HttpHandlerBag(
+    // Misc
     status: HttpPublicHandler,
+    // Auth Domain
     auth_signup: HttpPublicHandler,
     auth_login: HttpPublicHandler,
+    user_information: HttpPrivateHandler,
+    // Payment Domain
     restaurant_creation: HttpPrivateHandler,
+    restaurant_information: HttpPrivateHandler,
+    restaurant_update_information: HttpPrivateHandler,
   )
 }
 
@@ -75,6 +88,8 @@ pub fn build() -> Bag {
       create_user: create_user.build(repos.user),
       create_restaurant: create_restaurant.build(repos.restaurant),
       auth_user: authenticate_user.build(repos.user, services.auth),
+      search_restaurant: search_restaurant.build(repos.restaurant),
+      update_restaurant: update_restaurant.build(repos.restaurant),
     )
 
   let handlers =
@@ -90,9 +105,18 @@ pub fn build() -> Bag {
         services.hasher,
         usecases.auth_user,
       ),
+      user_information: user_information_handler.handle(_, usecases.search_user),
       restaurant_creation: restaurant_creation_handler.handle(
         _,
         usecases.create_restaurant,
+      ),
+      restaurant_information: restaurant_information_handler.handle(
+        _,
+        usecases.search_restaurant,
+      ),
+      restaurant_update_information: restaurant_update_information_handler.handle(
+        _,
+        usecases.update_restaurant,
       ),
     )
   Bag(services:, usecases:, http_handlers: handlers, repositories: repos)

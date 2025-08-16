@@ -1,9 +1,13 @@
 import domain/payment/value_object/business_name.{type BusinessName}
+import domain/payment/value_object/city
 import domain/payment/value_object/invoice_information.{type InvoiceInformation}
 import domain/payment/value_object/owner_id.{type OwnerId}
+import domain/payment/value_object/province
 import domain/payment/value_object/restaurant_address.{type RestaurantAddress}
 import domain/payment/value_object/restaurant_id.{type RestaurantId}
+import domain/payment/value_object/street_name
 import domain/payment/value_object/telephone.{type Telephone}
+import gleam/json
 import gleam/option.{type Option, None, Some}
 
 pub type RestaurantError {
@@ -55,4 +59,76 @@ pub fn add_invoice_information(
       )
       |> Ok
   }
+}
+
+pub fn set_name(restaurant: Restaurant, name: BusinessName) -> Restaurant {
+  Restaurant(
+    id: restaurant.id,
+    owner_id: restaurant.owner_id,
+    name: name,
+    telephone: restaurant.telephone,
+    address: restaurant.address,
+    invoice_information: restaurant.invoice_information,
+  )
+}
+
+pub fn set_phone(restaurant: Restaurant, phone: Telephone) -> Restaurant {
+  Restaurant(
+    id: restaurant.id,
+    owner_id: restaurant.owner_id,
+    name: restaurant.name,
+    telephone: phone,
+    address: restaurant.address,
+    invoice_information: restaurant.invoice_information,
+  )
+}
+
+pub fn set_address(
+  restaurant: Restaurant,
+  address: RestaurantAddress,
+) -> Restaurant {
+  Restaurant(
+    id: restaurant.id,
+    owner_id: restaurant.owner_id,
+    name: restaurant.name,
+    telephone: restaurant.telephone,
+    address: address,
+    invoice_information: restaurant.invoice_information,
+  )
+}
+
+pub fn set_invoice_information(
+  restaurant: Restaurant,
+  invoice_information: Option(InvoiceInformation),
+) -> Restaurant {
+  Restaurant(
+    id: restaurant.id,
+    owner_id: restaurant.owner_id,
+    name: restaurant.name,
+    telephone: restaurant.telephone,
+    address: restaurant.address,
+    invoice_information: invoice_information,
+  )
+}
+
+pub fn to_json(restaurant: Restaurant) -> json.Json {
+  let Restaurant(
+    _id,
+    _owner_id,
+    name:,
+    telephone:,
+    address:,
+    invoice_information:,
+  ) = restaurant
+  json.object([
+    #("name", business_name.to_json(name)),
+    #("phone", telephone.to_json(telephone)),
+    #("address_province", province.to_json(address.province)),
+    #("address_city", city.to_json(address.city)),
+    #("address_street", street_name.to_json(address.street)),
+    #("invoice", case invoice_information {
+      None -> json.null()
+      Some(information) -> invoice_information.to_json(information)
+    }),
+  ])
 }

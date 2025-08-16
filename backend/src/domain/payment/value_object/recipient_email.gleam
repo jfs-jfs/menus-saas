@@ -1,4 +1,5 @@
 import gleam/dynamic/decode
+import gleam/json
 import shared/validate
 
 pub type RecipientEmail {
@@ -7,6 +8,10 @@ pub type RecipientEmail {
 
 pub type RecipientEmailError {
   InvalidFormat(String)
+}
+
+pub fn to_json(recipient_email: RecipientEmail) -> json.Json {
+  json.string(recipient_email.value)
 }
 
 pub fn create(
