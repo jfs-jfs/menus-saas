@@ -1,0 +1,20 @@
+Listado de rutas de carpetas para el volumen Windows
+El n£mero de serie del volumen es 00000066 E68D:6181
+C:\USERS\USER\DOCUMENTS\CREACARTA\MENUS-SAAS\FRONTEND\SRC
+ÃÄÄÄapplication
+³   ÀÄÄÄuse-cases
+ÃÄÄÄassets
+³   ÃÄÄÄfonts
+³   ÀÄÄÄimages
+ÃÄÄÄconfig
+ÃÄÄÄdomain
+³   ÃÄÄÄentities
+³   ÀÄÄÄrepositories
+ÃÄÄÄinfraestructure
+³   ÃÄÄÄapi
+³   ÀÄÄÄstorage
+ÀÄÄÄinterfaces
+    ÃÄÄÄcomponents
+    ³   ÀÄÄÄ__tests__
+    ÃÄÄÄlayouts
+    ÀÄÄÄscreens
