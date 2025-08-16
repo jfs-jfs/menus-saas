@@ -115,6 +115,42 @@ pub fn post_authenticated_json(
   )
 }
 
+pub fn put_authenticated_json(
+  user: #(String, String),
+  endpoint: String,
+  headers: List(#(String, String)),
+  body: String,
+  then: fn(wisp.Response) -> Nil,
+) -> Nil {
+  let #(email, password) = user
+  let request = "
+  {
+    \"email\": \"" <> email <> "\",
+    \"password\": \"" <> password <> "\"
+  }
+  "
+
+  use response <- post_json("/v1/auth/login", [], request)
+  let answer_body = extract_body(response)
+
+  let body_decode = {
+    use token <- decode.field("token", decode.string)
+    decode.success(token)
+  }
+
+  let assert Ok(token) = json.parse(answer_body, body_decode)
+
+  put_json(
+    endpoint,
+    headers
+      |> list.append([
+        #(env.get_string_or("JWT_HEADER", "authentication"), token),
+      ]),
+    body,
+    then,
+  )
+}
+
 pub fn post_json(
   endpoint: String,
   headers: List(#(String, String)),
